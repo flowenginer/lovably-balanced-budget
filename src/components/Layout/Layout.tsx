@@ -6,6 +6,7 @@ import { MobileNav } from './MobileNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { FinancialProvider } from '@/contexts/FinancialContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface LayoutProps {
   children: React.ReactNode;
