@@ -21,20 +21,29 @@ export function StatsCard({
   className 
 }: StatsCardProps) {
   return (
-    <Card className={cn("hover:shadow-lg transition-shadow", className)}>
+    <Card className={cn(
+      "hover-lift glass-effect border-white/20 transition-all duration-300 group",
+      className
+    )}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors duration-200">
+          {title}
+        </CardTitle>
+        <div className="p-2 rounded-lg bg-white/10 group-hover:bg-white/20 transition-all duration-200">
+          <Icon className="h-4 w-4 text-primary group-hover:scale-110 transition-transform duration-200" />
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold mb-1 gradient-text">{value}</div>
         {change && (
           <p className={cn(
-            "text-xs",
-            changeType === 'positive' && "text-green-600",
-            changeType === 'negative' && "text-red-600",
+            "text-xs font-medium flex items-center gap-1",
+            changeType === 'positive' && "text-green-600 dark:text-green-400",
+            changeType === 'negative' && "text-red-600 dark:text-red-400",
             changeType === 'neutral' && "text-muted-foreground"
           )}>
+            {changeType === 'positive' && '↗'}
+            {changeType === 'negative' && '↘'}
             {change}
           </p>
         )}

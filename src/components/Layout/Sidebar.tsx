@@ -11,17 +11,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { 
   Circle, 
   Grid2x2, 
   PieChart, 
   Settings, 
-  User, 
-  Plus, 
   TrendingUp,
   FileText,
+  Sparkles,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -48,7 +46,7 @@ const navigationItems = [
   {
     title: 'IA Financeira',
     url: '/ai',
-    icon: FileText,
+    icon: Sparkles,
   },
   {
     title: 'Configurações',
@@ -62,50 +60,72 @@ export function AppSidebar() {
   const isCollapsed = state === 'collapsed';
 
   return (
-    <Sidebar className={cn(isCollapsed ? "w-14" : "w-64", "transition-all duration-300")}>
-      <div className="p-4 border-b">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">F</span>
-          </div>
-          {!isCollapsed && (
-            <div>
-              <h2 className="font-bold text-lg">FinanceAI</h2>
-              <p className="text-xs text-muted-foreground">Gestão Inteligente</p>
+    <Sidebar className={cn(isCollapsed ? "w-16" : "w-72", "transition-all duration-300 border-r-0")}>
+      <div className="h-full glass-effect rounded-r-2xl">
+        {/* Logo Section */}
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 gradient-bg-primary rounded-xl flex items-center justify-center glow-animation">
+              <span className="text-white font-bold text-lg">F</span>
             </div>
-          )}
+            {!isCollapsed && (
+              <div>
+                <h2 className="font-bold text-xl gradient-text">FinanceAI</h2>
+                <p className="text-xs text-muted-foreground">Gestão Inteligente</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={({ isActive }) =>
-                        cn(
-                          "flex items-center gap-2 p-2 rounded-lg transition-colors",
-                          isActive 
-                            ? "bg-primary/10 text-primary font-medium" 
-                            : "hover:bg-muted/50"
-                        )
-                      }
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-muted-foreground font-medium px-3 text-xs uppercase tracking-wider">
+              Menu Principal
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1 px-3">
+                {navigationItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        className={({ isActive }) =>
+                          cn(
+                            "flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group relative",
+                            "hover:bg-white/20 hover:shadow-lg hover:scale-[1.02]",
+                            isActive 
+                              ? "bg-white/20 text-primary font-medium shadow-lg backdrop-blur-sm" 
+                              : "text-sidebar-foreground hover:text-primary"
+                          )
+                        }
+                      >
+                        <item.icon className="h-5 w-5 transition-all duration-200 group-hover:scale-110" />
+                        {!isCollapsed && (
+                          <span className="font-medium transition-all duration-200">
+                            {item.title}
+                          </span>
+                        )}
+                        {!isCollapsed && (
+                          <div className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <div className="w-1 h-1 bg-primary rounded-full"></div>
+                          </div>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+
+        {/* Bottom decoration */}
+        {!isCollapsed && (
+          <div className="absolute bottom-6 left-6 right-6">
+            <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+          </div>
+        )}
+      </div>
     </Sidebar>
   );
 }
