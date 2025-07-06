@@ -306,11 +306,19 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const getBalance = (entityType?: 'pf' | 'pj') => {
-    return transactions
+    // Soma das transações
+    const transactionBalance = transactions
       .filter(t => !entityType || t.entityType === entityType)
       .reduce((acc, t) => {
         return t.type === 'income' ? acc + t.amount : acc - t.amount;
       }, 0);
+
+    // Soma dos saldos iniciais das contas
+    const accountsBalance = accounts
+      .filter(a => !entityType || a.entityType === entityType)
+      .reduce((acc, a) => acc + a.balance, 0);
+
+    return transactionBalance + accountsBalance;
   };
 
   const getMonthlyData = (entityType?: 'pf' | 'pj') => {
