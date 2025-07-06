@@ -14,7 +14,9 @@ interface FinancialContextType {
   updateTransaction: (id: string, transaction: Partial<Transaction>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   addCategory: (category: Omit<Category, 'id'>) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   addAccount: (account: Omit<Account, 'id'>) => Promise<void>;
+  deleteAccount: (id: string) => Promise<void>;
   setActiveTab: (tab: 'pf' | 'pj') => void;
   getBalance: (entityType?: 'pf' | 'pj') => number;
   getMonthlyData: (entityType?: 'pf' | 'pj') => { income: number; expenses: number };
@@ -169,6 +171,88 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const addCategory = async (category: Omit<Category, 'id'>) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .insert({
+          user_id: user.id,
+          name: category.name,
+          type: category.type,
+          entity_type: category.entityType,
+          color: category.color
+        });
+
+      if (error) throw error;
+      
+      await refreshData();
+    } catch (error) {
+      console.error('Error adding category:', error);
+      throw error;
+    }
+  };
+
+  const deleteCategory = async (id: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      await refreshData();
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      throw error;
+    }
+  };
+
+  const addAccount = async (account: Omit<Account, 'id'>) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('accounts')
+        .insert({
+          user_id: user.id,
+          name: account.name,
+          type: account.type,
+          balance: account.balance,
+          entity_type: account.entityType
+        });
+
+      if (error) throw error;
+      
+      await refreshData();
+    } catch (error) {
+      console.error('Error adding account:', error);
+      throw error;
+    }
+  };
+
+  const deleteAccount = async (id: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('accounts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      await refreshData();
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      throw error;
+    }
+  };
+
   const addTransaction = async (transaction: Omit<Transaction, 'id'>) => {
     if (!user) return;
 
@@ -259,52 +343,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const addCategory = async (category: Omit<Category, 'id'>) => {
-    if (!user) return;
-
-    try {
-      const { error } = await supabase
-        .from('categories')
-        .insert({
-          user_id: user.id,
-          name: category.name,
-          type: category.type,
-          entity_type: category.entityType,
-          color: category.color
-        });
-
-      if (error) throw error;
-      
-      await refreshData();
-    } catch (error) {
-      console.error('Error adding category:', error);
-      throw error;
-    }
-  };
-
-  const addAccount = async (account: Omit<Account, 'id'>) => {
-    if (!user) return;
-
-    try {
-      const { error } = await supabase
-        .from('accounts')
-        .insert({
-          user_id: user.id,
-          name: account.name,
-          type: account.type,
-          balance: account.balance,
-          entity_type: account.entityType
-        });
-
-      if (error) throw error;
-      
-      await refreshData();
-    } catch (error) {
-      console.error('Error adding account:', error);
-      throw error;
-    }
-  };
-
   const getBalance = (entityType?: 'pf' | 'pj') => {
     return transactions
       .filter(t => !entityType || t.entityType === entityType)
@@ -348,7 +386,9 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       updateTransaction,
       deleteTransaction,
       addCategory,
+      deleteCategory,
       addAccount,
+      deleteAccount,
       setActiveTab,
       getBalance,
       getMonthlyData,

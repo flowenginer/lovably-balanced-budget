@@ -13,6 +13,7 @@ import Reports from "./pages/Reports";
 import AIFinance from "./pages/AIFinance";
 import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
+import Categories from "./pages/Categories";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/transactions" element={<Transactions />} />
+        <Route path="/categories" element={<Categories />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/ai" element={<AIFinance />} />
         <Route path="/goals" element={<Goals />} />
