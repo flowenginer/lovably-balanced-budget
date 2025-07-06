@@ -1,11 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '@/types/financial';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  session: Session | null;
+  login: (email: string, password: string) => Promise<{ error?: string }>;
+  signup: (email: string, password: string, name?: string) => Promise<{ error?: string }>;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -21,46 +24,94 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const storedUser = localStorage.getItem('financial-user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth event:', event, session?.user?.email);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Create default categories and accounts for new users
+        if (event === 'SIGNED_IN' && session?.user) {
+          setTimeout(async () => {
+            try {
+              // Call the functions to create default data
+              await supabase.rpc('create_default_categories', { user_id: session.user.id });
+              await supabase.rpc('create_default_accounts', { user_id: session.user.id });
+            } catch (error) {
+              console.log('Default data creation (might already exist):', error);
+            }
+          }, 0);
+        }
+        
+        setIsLoading(false);
+      }
+    );
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
+  const login = async (email: string, password: string) => {
     try {
-      // Mock authentication - in real app, this would be an API call
-      if (email === 'admin@financeiro.com' && password === 'admin123') {
-        const mockUser: User = {
-          id: '1',
-          name: 'Usuário Demo',
-          email: email,
-          theme: 'light',
-          createdAt: new Date().toISOString(),
-        };
-        setUser(mockUser);
-        localStorage.setItem('financial-user', JSON.stringify(mockUser));
-        return true;
-      }
-      return false;
-    } finally {
-      setIsLoading(false);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      return { error: error?.message };
+    } catch (error) {
+      return { error: 'Erro inesperado no login' };
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('financial-user');
+  const signup = async (email: string, password: string, name?: string) => {
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            name: name || email.split('@')[0],
+          }
+        }
+      });
+      
+      return { error: error?.message };
+    } catch (error) {
+      return { error: 'Erro inesperado no cadastro' };
+    }
+  };
+
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Erro no logout:', error);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      login, 
+      signup, 
+      logout, 
+      isLoading 
+    }}>
       {children}
     </AuthContext.Provider>
   );

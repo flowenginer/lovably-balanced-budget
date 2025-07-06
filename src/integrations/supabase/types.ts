@@ -9,13 +9,238 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      accounts: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          entity_type: string
+          id: string
+          name: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          entity_type: string
+          id?: string
+          name: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          entity_type?: string
+          id?: string
+          name?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          color: string
+          created_at: string | null
+          entity_type: string
+          id: string
+          name: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string | null
+          entity_type: string
+          id?: string
+          name: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          entity_type?: string
+          id?: string
+          name?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      financial_goals: {
+        Row: {
+          created_at: string | null
+          current_amount: number | null
+          deadline: string
+          entity_type: string
+          id: string
+          target_amount: number
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_amount?: number | null
+          deadline: string
+          entity_type: string
+          id?: string
+          target_amount: number
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_amount?: number | null
+          deadline?: string
+          entity_type?: string
+          id?: string
+          target_amount?: number
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          theme: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          id: string
+          name: string
+          theme?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          theme?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          account_id: string
+          amount: number
+          attachment_url: string | null
+          bank_account: string | null
+          bank_agency: string | null
+          bank_cpf_cnpj: string | null
+          bank_name: string | null
+          category_id: string
+          created_at: string | null
+          date: string
+          description: string
+          entity_type: string
+          id: string
+          is_recurring: boolean | null
+          observations: string | null
+          payment_method: string
+          pix_key: string | null
+          pix_key_type: string | null
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          attachment_url?: string | null
+          bank_account?: string | null
+          bank_agency?: string | null
+          bank_cpf_cnpj?: string | null
+          bank_name?: string | null
+          category_id: string
+          created_at?: string | null
+          date: string
+          description: string
+          entity_type: string
+          id?: string
+          is_recurring?: boolean | null
+          observations?: string | null
+          payment_method: string
+          pix_key?: string | null
+          pix_key_type?: string | null
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          attachment_url?: string | null
+          bank_account?: string | null
+          bank_agency?: string | null
+          bank_cpf_cnpj?: string | null
+          bank_name?: string | null
+          category_id?: string
+          created_at?: string | null
+          date?: string
+          description?: string
+          entity_type?: string
+          id?: string
+          is_recurring?: boolean | null
+          observations?: string | null
+          payment_method?: string
+          pix_key?: string | null
+          pix_key_type?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_default_accounts: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
+      create_default_categories: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,5 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
 import { Transaction, Category, Account, FinancialGoal } from '@/types/financial';
 
 interface FinancialContextType {
@@ -8,14 +10,16 @@ interface FinancialContextType {
   accounts: Account[];
   goals: FinancialGoal[];
   activeTab: 'pf' | 'pj';
-  addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
-  updateTransaction: (id: string, transaction: Partial<Transaction>) => void;
-  deleteTransaction: (id: string) => void;
-  addCategory: (category: Omit<Category, 'id'>) => void;
-  addAccount: (account: Omit<Account, 'id'>) => void;
+  addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
+  updateTransaction: (id: string, transaction: Partial<Transaction>) => Promise<void>;
+  deleteTransaction: (id: string) => Promise<void>;
+  addCategory: (category: Omit<Category, 'id'>) => Promise<void>;
+  addAccount: (account: Omit<Account, 'id'>) => Promise<void>;
   setActiveTab: (tab: 'pf' | 'pj') => void;
   getBalance: (entityType?: 'pf' | 'pj') => number;
   getMonthlyData: (entityType?: 'pf' | 'pj') => { income: number; expenses: number };
+  isLoading: boolean;
+  refreshData: () => Promise<void>;
 }
 
 const FinancialContext = createContext<FinancialContextType | undefined>(undefined);
@@ -28,84 +32,250 @@ export const useFinancial = () => {
   return context;
 };
 
-const defaultCategories: Category[] = [
-  // PF Categories
-  { id: '1', name: 'Salário', type: 'income', entityType: 'pf', color: '#10B981' },
-  { id: '2', name: 'Freelance', type: 'income', entityType: 'pf', color: '#059669' },
-  { id: '3', name: 'Alimentação', type: 'expense', entityType: 'pf', color: '#EF4444' },
-  { id: '4', name: 'Transporte', type: 'expense', entityType: 'pf', color: '#F97316' },
-  { id: '5', name: 'Moradia', type: 'expense', entityType: 'pf', color: '#8B5CF6' },
-  { id: '6', name: 'Lazer', type: 'expense', entityType: 'pf', color: '#EC4899' },
-  
-  // PJ Categories
-  { id: '7', name: 'Vendas', type: 'income', entityType: 'pj', color: '#10B981' },
-  { id: '8', name: 'Serviços', type: 'income', entityType: 'pj', color: '#059669' },
-  { id: '9', name: 'Folha de Pagamento', type: 'expense', entityType: 'pj', color: '#EF4444' },
-  { id: '10', name: 'Fornecedores', type: 'expense', entityType: 'pj', color: '#F97316' },
-  { id: '11', name: 'Impostos', type: 'expense', entityType: 'pj', color: '#8B5CF6' },
-  { id: '12', name: 'Aluguel Comercial', type: 'expense', entityType: 'pj', color: '#EC4899' },
-];
-
-const defaultAccounts: Account[] = [
-  { id: '1', name: 'Conta Corrente PF', type: 'checking', balance: 5000, entityType: 'pf' },
-  { id: '2', name: 'Poupança PF', type: 'savings', balance: 12000, entityType: 'pf' },
-  { id: '3', name: 'Dinheiro', type: 'cash', balance: 500, entityType: 'pf' },
-  { id: '4', name: 'Conta Empresarial', type: 'checking', balance: 25000, entityType: 'pj' },
-  { id: '5', name: 'Conta Investimentos PJ', type: 'investment', balance: 50000, entityType: 'pj' },
-];
-
 export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<Category[]>(defaultCategories);
-  const [accounts, setAccounts] = useState<Account[]>(defaultAccounts);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
   const [activeTab, setActiveTab] = useState<'pf' | 'pj'>('pf');
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Load data when user is authenticated
   useEffect(() => {
-    // Load data from localStorage
-    const savedTransactions = localStorage.getItem('financial-transactions');
-    if (savedTransactions) {
-      setTransactions(JSON.parse(savedTransactions));
+    if (user) {
+      refreshData();
+    } else {
+      // Clear data when user logs out
+      setTransactions([]);
+      setCategories([]);
+      setAccounts([]);
+      setGoals([]);
     }
-  }, []);
+  }, [user]);
 
-  useEffect(() => {
-    // Save transactions to localStorage
-    localStorage.setItem('financial-transactions', JSON.stringify(transactions));
-  }, [transactions]);
+  const refreshData = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      // Load categories
+      const { data: categoriesData } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      
+      if (categoriesData) {
+        setCategories(categoriesData);
+      }
 
-  const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
-    const newTransaction: Transaction = {
-      ...transaction,
-      id: Date.now().toString(),
-    };
-    setTransactions(prev => [...prev, newTransaction]);
+      // Load accounts
+      const { data: accountsData } = await supabase
+        .from('accounts')
+        .select('*')
+        .order('name');
+      
+      if (accountsData) {
+        setAccounts(accountsData);
+      }
+
+      // Load transactions
+      const { data: transactionsData } = await supabase
+        .from('transactions')
+        .select(`
+          *,
+          categories(name, color),
+          accounts(name)
+        `)
+        .order('date', { ascending: false });
+      
+      if (transactionsData) {
+        const formattedTransactions = transactionsData.map(t => ({
+          id: t.id,
+          type: t.type as 'income' | 'expense',
+          category: t.categories?.name || '',
+          description: t.description,
+          amount: Number(t.amount),
+          date: t.date,
+          paymentMethod: t.payment_method,
+          isRecurring: t.is_recurring || false,
+          observations: t.observations || '',
+          account: t.accounts?.name || '',
+          entityType: t.entity_type as 'pf' | 'pj',
+          attachment: t.attachment_url || '',
+          pixData: t.pix_key ? {
+            key: t.pix_key,
+            keyType: t.pix_key_type as any
+          } : undefined,
+          bankData: t.bank_name ? {
+            bank: t.bank_name,
+            agency: t.bank_agency || '',
+            account: t.bank_account || '',
+            cpfCnpj: t.bank_cpf_cnpj || ''
+          } : undefined
+        }));
+        setTransactions(formattedTransactions);
+      }
+
+      // Load goals
+      const { data: goalsData } = await supabase
+        .from('financial_goals')
+        .select('*')
+        .order('deadline');
+      
+      if (goalsData) {
+        const formattedGoals = goalsData.map(g => ({
+          id: g.id,
+          title: g.title,
+          targetAmount: Number(g.target_amount),
+          currentAmount: Number(g.current_amount),
+          deadline: g.deadline,
+          entityType: g.entity_type as 'pf' | 'pj'
+        }));
+        setGoals(formattedGoals);
+      }
+
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const updateTransaction = (id: string, updatedTransaction: Partial<Transaction>) => {
-    setTransactions(prev => 
-      prev.map(t => t.id === id ? { ...t, ...updatedTransaction } : t)
-    );
+  const addTransaction = async (transaction: Omit<Transaction, 'id'>) => {
+    if (!user) return;
+
+    try {
+      // Find category and account IDs
+      const category = categories.find(c => c.name === transaction.category);
+      const account = accounts.find(a => a.name === transaction.account);
+
+      if (!category || !account) {
+        throw new Error('Categoria ou conta não encontrada');
+      }
+
+      const { error } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          type: transaction.type,
+          category_id: category.id,
+          account_id: account.id,
+          description: transaction.description,
+          amount: transaction.amount,
+          date: transaction.date,
+          payment_method: transaction.paymentMethod,
+          is_recurring: transaction.isRecurring,
+          observations: transaction.observations,
+          entity_type: transaction.entityType,
+          attachment_url: transaction.attachment,
+          pix_key: transaction.pixData?.key,
+          pix_key_type: transaction.pixData?.keyType,
+          bank_name: transaction.bankData?.bank,
+          bank_agency: transaction.bankData?.agency,
+          bank_account: transaction.bankData?.account,
+          bank_cpf_cnpj: transaction.bankData?.cpfCnpj
+        });
+
+      if (error) throw error;
+      
+      // Refresh data to get the new transaction
+      await refreshData();
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+      throw error;
+    }
   };
 
-  const deleteTransaction = (id: string) => {
-    setTransactions(prev => prev.filter(t => t.id !== id));
+  const updateTransaction = async (id: string, updatedTransaction: Partial<Transaction>) => {
+    if (!user) return;
+
+    try {
+      const updates: any = {};
+      
+      if (updatedTransaction.description !== undefined) updates.description = updatedTransaction.description;
+      if (updatedTransaction.amount !== undefined) updates.amount = updatedTransaction.amount;
+      if (updatedTransaction.date !== undefined) updates.date = updatedTransaction.date;
+      if (updatedTransaction.paymentMethod !== undefined) updates.payment_method = updatedTransaction.paymentMethod;
+      if (updatedTransaction.isRecurring !== undefined) updates.is_recurring = updatedTransaction.isRecurring;
+      if (updatedTransaction.observations !== undefined) updates.observations = updatedTransaction.observations;
+
+      const { error } = await supabase
+        .from('transactions')
+        .update(updates)
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      await refreshData();
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      throw error;
+    }
   };
 
-  const addCategory = (category: Omit<Category, 'id'>) => {
-    const newCategory: Category = {
-      ...category,
-      id: Date.now().toString(),
-    };
-    setCategories(prev => [...prev, newCategory]);
+  const deleteTransaction = async (id: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      await refreshData();
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      throw error;
+    }
   };
 
-  const addAccount = (account: Omit<Account, 'id'>) => {
-    const newAccount: Account = {
-      ...account,
-      id: Date.now().toString(),
-    };
-    setAccounts(prev => [...prev, newAccount]);
+  const addCategory = async (category: Omit<Category, 'id'>) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .insert({
+          user_id: user.id,
+          name: category.name,
+          type: category.type,
+          entity_type: category.entityType,
+          color: category.color
+        });
+
+      if (error) throw error;
+      
+      await refreshData();
+    } catch (error) {
+      console.error('Error adding category:', error);
+      throw error;
+    }
+  };
+
+  const addAccount = async (account: Omit<Account, 'id'>) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('accounts')
+        .insert({
+          user_id: user.id,
+          name: account.name,
+          type: account.type,
+          balance: account.balance,
+          entity_type: account.entityType
+        });
+
+      if (error) throw error;
+      
+      await refreshData();
+    } catch (error) {
+      console.error('Error adding account:', error);
+      throw error;
+    }
   };
 
   const getBalance = (entityType?: 'pf' | 'pj') => {
@@ -154,6 +324,8 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setActiveTab,
       getBalance,
       getMonthlyData,
+      isLoading,
+      refreshData,
     }}>
       {children}
     </FinancialContext.Provider>
