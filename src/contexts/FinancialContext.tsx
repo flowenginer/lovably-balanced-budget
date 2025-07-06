@@ -74,21 +74,27 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setUserProfile({ name: profileData.name, email: profileData.email });
       }
 
-      // Load categories
+      // Load categories - remove duplicates by using a Map with unique key
       const { data: categoriesData } = await supabase
         .from('categories')
         .select('*')
         .order('name');
       
       if (categoriesData) {
-        const formattedCategories = categoriesData.map(c => ({
-          id: c.id,
-          name: c.name,
-          type: c.type as 'income' | 'expense',
-          entityType: c.entity_type as 'pf' | 'pj',
-          color: c.color
-        }));
-        setCategories(formattedCategories);
+        const uniqueCategories = new Map();
+        categoriesData.forEach(c => {
+          const key = `${c.name}-${c.type}-${c.entity_type}`;
+          if (!uniqueCategories.has(key)) {
+            uniqueCategories.set(key, {
+              id: c.id,
+              name: c.name,
+              type: c.type as 'income' | 'expense',
+              entityType: c.entity_type as 'pf' | 'pj',
+              color: c.color
+            });
+          }
+        });
+        setCategories(Array.from(uniqueCategories.values()));
       }
 
       // Load accounts

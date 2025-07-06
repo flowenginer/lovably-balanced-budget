@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useFinancial } from '@/contexts/FinancialContext';
 import { Button } from '@/components/ui/button';
@@ -128,7 +127,7 @@ export default function Transactions() {
               Nova Transação
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg z-[9999]">
             <DialogHeader>
               <DialogTitle>Nova Transação</DialogTitle>
             </DialogHeader>
@@ -153,7 +152,7 @@ export default function Transactions() {
                     </SelectTrigger>
                     <SelectContent>
                       {typeCategories.map((category) => (
-                        <SelectItem key={category.id} value={category.name}>
+                        <SelectItem key={`${category.id}-${category.name}`} value={category.name}>
                           <div className="flex items-center gap-2">
                             <div 
                               className="w-3 h-3 rounded-full"
@@ -211,7 +210,7 @@ export default function Transactions() {
                     </SelectTrigger>
                     <SelectContent>
                       {entityAccounts.map((account) => (
-                        <SelectItem key={account.id} value={account.name}>
+                        <SelectItem key={`${account.id}-${account.name}`} value={account.name}>
                           {account.name}
                         </SelectItem>
                       ))}
@@ -305,7 +304,7 @@ export default function Transactions() {
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 {entityCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.name}>
+                  <SelectItem key={`filter-${category.id}-${category.name}`} value={category.name}>
                     {category.name}
                   </SelectItem>
                 ))}
