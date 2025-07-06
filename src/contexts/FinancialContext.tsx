@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
@@ -10,6 +9,7 @@ interface FinancialContextType {
   accounts: Account[];
   goals: FinancialGoal[];
   activeTab: 'pf' | 'pj';
+  userProfile: { name: string; email: string } | null;
   addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
   updateTransaction: (id: string, transaction: Partial<Transaction>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
@@ -38,6 +38,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [categories, setCategories] = useState<Category[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
+  const [userProfile, setUserProfile] = useState<{ name: string; email: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'pf' | 'pj'>('pf');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,6 +52,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setCategories([]);
       setAccounts([]);
       setGoals([]);
+      setUserProfile(null);
     }
   }, [user]);
 
@@ -59,6 +61,17 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     setIsLoading(true);
     try {
+      // Load user profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('name, email')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileData) {
+        setUserProfile({ name: profileData.name, email: profileData.email });
+      }
+
       // Load categories
       const { data: categoriesData } = await supabase
         .from('categories')
@@ -66,7 +79,14 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         .order('name');
       
       if (categoriesData) {
-        setCategories(categoriesData);
+        const formattedCategories = categoriesData.map(c => ({
+          id: c.id,
+          name: c.name,
+          type: c.type as 'income' | 'expense',
+          entityType: c.entity_type as 'pf' | 'pj',
+          color: c.color
+        }));
+        setCategories(formattedCategories);
       }
 
       // Load accounts
@@ -76,7 +96,14 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         .order('name');
       
       if (accountsData) {
-        setAccounts(accountsData);
+        const formattedAccounts = accountsData.map(a => ({
+          id: a.id,
+          name: a.name,
+          type: a.type as 'checking' | 'savings' | 'cash' | 'investment' | 'credit',
+          balance: Number(a.balance || 0),
+          entityType: a.entity_type as 'pf' | 'pj'
+        }));
+        setAccounts(formattedAccounts);
       }
 
       // Load transactions
@@ -316,6 +343,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       accounts,
       goals,
       activeTab,
+      userProfile,
       addTransaction,
       updateTransaction,
       deleteTransaction,

@@ -1,6 +1,6 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFinancial } from '@/contexts/FinancialContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,11 +14,12 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function Settings() {
   const { user, logout } = useAuth();
+  const { userProfile } = useFinancial();
   const { toast } = useToast();
   
   const [profile, setProfile] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
+    name: userProfile?.name || '',
+    email: userProfile?.email || '',
   });
   
   const [notifications, setNotifications] = useState({
@@ -80,12 +81,12 @@ export default function Settings() {
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
               <AvatarFallback className="text-lg">
-                {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                {userProfile?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-1">
-              <h3 className="font-medium">{user?.name}</h3>
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
+              <h3 className="font-medium">{userProfile?.name || 'Usuário'}</h3>
+              <p className="text-sm text-muted-foreground">{userProfile?.email || user?.email}</p>
               <Badge variant="secondary">Usuário Premium</Badge>
             </div>
           </div>

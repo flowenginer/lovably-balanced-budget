@@ -19,7 +19,7 @@ import { User, Settings, LogOut } from 'lucide-react';
 
 export function Header() {
   const { user, logout } = useAuth();
-  const { activeTab, setActiveTab } = useFinancial();
+  const { activeTab, setActiveTab, userProfile } = useFinancial();
   const isMobile = useIsMobile();
 
   return (
@@ -86,7 +86,7 @@ export function Header() {
               )}>
                 <Avatar className={isMobile ? "h-9 w-9" : "h-10 w-10"}>
                   <AvatarFallback className="gradient-bg-primary text-white font-semibold">
-                    {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                    {userProfile?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -94,9 +94,9 @@ export function Header() {
             <DropdownMenuContent className="w-56 glass-effect border-white/20" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-sm font-medium leading-none">{userProfile?.name || 'Usuário'}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email}
+                    {userProfile?.email || user?.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
