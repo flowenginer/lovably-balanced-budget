@@ -188,21 +188,30 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const firstDayOfCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const firstDayOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
 
-      // Get all recurring transactions from previous months
-      const { data: recurringTransactions } = await supabase
+      // Get all recurring transactions (without date filter to get all recurring ones)
+      const { data: allRecurringTransactions } = await supabase
         .from('transactions')
         .select('*')
         .eq('user_id', user.id)
         .eq('is_recurring', true)
-        .lt('date', firstDayOfCurrentMonth.toISOString().split('T')[0]);
+        .order('date', { ascending: false });
 
-      if (!recurringTransactions || recurringTransactions.length === 0) {
+      if (!allRecurringTransactions || allRecurringTransactions.length === 0) {
         return;
       }
 
+      // Group by unique transaction pattern (description, amount, category, account)
+      const uniqueRecurringTransactions = new Map();
+      allRecurringTransactions.forEach(transaction => {
+        const key = `${transaction.description}-${transaction.amount}-${transaction.category_id}-${transaction.account_id}`;
+        if (!uniqueRecurringTransactions.has(key)) {
+          uniqueRecurringTransactions.set(key, transaction);
+        }
+      });
+
       const newTransactions = [];
 
-      for (const transaction of recurringTransactions) {
+      for (const [, transaction] of uniqueRecurringTransactions) {
         // Check if this recurring transaction already has a version for this month
         const { data: existingTransaction } = await supabase
           .from('transactions')
@@ -257,6 +266,8 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         if (insertError) {
           console.error('Error creating recurring transactions:', insertError);
+        } else {
+          console.log(`Generated ${newTransactions.length} recurring transactions for current month`);
         }
       }
     } catch (error) {
