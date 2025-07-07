@@ -369,32 +369,62 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         throw new Error('Categoria ou conta não encontrada');
       }
 
-      const { error } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: user.id,
-          type: transaction.type,
-          category_id: category.id,
-          account_id: account.id,
-          description: transaction.description,
-          amount: transaction.amount,
-          date: transaction.date,
-          payment_method: transaction.paymentMethod,
-          is_recurring: transaction.isRecurring,
-          observations: transaction.observations,
-          entity_type: transaction.entityType,
-          attachment_url: transaction.attachment,
-          pix_key: transaction.pixData?.key,
-          pix_key_type: transaction.pixData?.keyType,
-          bank_name: transaction.bankData?.bank,
-          bank_agency: transaction.bankData?.agency,
-          bank_account: transaction.bankData?.account,
-          bank_cpf_cnpj: transaction.bankData?.cpfCnpj
-        });
+      const transactionData = {
+        user_id: user.id,
+        type: transaction.type,
+        category_id: category.id,
+        account_id: account.id,
+        description: transaction.description,
+        amount: transaction.amount,
+        date: transaction.date,
+        payment_method: transaction.paymentMethod,
+        is_recurring: transaction.isRecurring,
+        observations: transaction.observations,
+        entity_type: transaction.entityType,
+        attachment_url: transaction.attachment,
+        pix_key: transaction.pixData?.key,
+        pix_key_type: transaction.pixData?.keyType,
+        bank_name: transaction.bankData?.bank,
+        bank_agency: transaction.bankData?.agency,
+        bank_account: transaction.bankData?.account,
+        bank_cpf_cnpj: transaction.bankData?.cpfCnpj
+      };
 
-      if (error) throw error;
+      // If it's a recurring transaction, create it for the next 12 months
+      if (transaction.isRecurring) {
+        const transactionsToInsert = [];
+        const originalDate = new Date(transaction.date);
+        
+        // Create for current month + next 11 months (total 12 months)
+        for (let i = 0; i < 12; i++) {
+          const newDate = new Date(originalDate.getFullYear(), originalDate.getMonth() + i, originalDate.getDate());
+          
+          // If the day doesn't exist in the target month, use the last day of that month
+          if (newDate.getMonth() !== (originalDate.getMonth() + i) % 12) {
+            newDate.setDate(0); // Sets to last day of previous month
+          }
+          
+          transactionsToInsert.push({
+            ...transactionData,
+            date: newDate.toISOString().split('T')[0]
+          });
+        }
+
+        const { error } = await supabase
+          .from('transactions')
+          .insert(transactionsToInsert);
+
+        if (error) throw error;
+      } else {
+        // Single transaction
+        const { error } = await supabase
+          .from('transactions')
+          .insert(transactionData);
+
+        if (error) throw error;
+      }
       
-      // Refresh data to get the new transaction
+      // Refresh data to get the new transaction(s)
       await refreshData();
     } catch (error) {
       console.error('Error adding transaction:', error);
@@ -433,12 +463,43 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      // Get the transaction to check if it's recurring
+      const { data: transactionToDelete } = await supabase
         .from('transactions')
-        .delete()
-        .eq('id', id);
+        .select('*')
+        .eq('id', id)
+        .single();
 
-      if (error) throw error;
+      if (!transactionToDelete) {
+        throw new Error('Transação não encontrada');
+      }
+
+      // If it's a recurring transaction, delete all future instances of the same pattern
+      if (transactionToDelete.is_recurring) {
+        const today = new Date();
+        
+        // Delete this transaction and all future instances with the same pattern
+        const { error } = await supabase
+          .from('transactions')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('category_id', transactionToDelete.category_id)
+          .eq('account_id', transactionToDelete.account_id)
+          .eq('description', transactionToDelete.description)
+          .eq('amount', transactionToDelete.amount)
+          .eq('is_recurring', true)
+          .gte('date', today.toISOString().split('T')[0]);
+
+        if (error) throw error;
+      } else {
+        // Single transaction delete
+        const { error } = await supabase
+          .from('transactions')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+      }
       
       await refreshData();
     } catch (error) {
