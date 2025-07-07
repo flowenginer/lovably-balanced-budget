@@ -295,6 +295,39 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         });
 
       if (error) throw error;
+
+      // If it's a recurring transaction, create next month's transaction
+      if (transaction.isRecurring) {
+        const nextMonth = new Date(transaction.date);
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        
+        const { error: recurringError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: user.id,
+            type: transaction.type,
+            category_id: category.id,
+            account_id: account.id,
+            description: `${transaction.description} (Recorrente)`,
+            amount: transaction.amount,
+            date: nextMonth.toISOString().split('T')[0],
+            payment_method: transaction.paymentMethod,
+            is_recurring: true,
+            observations: transaction.observations,
+            entity_type: transaction.entityType,
+            attachment_url: transaction.attachment,
+            pix_key: transaction.pixData?.key,
+            pix_key_type: transaction.pixData?.keyType,
+            bank_name: transaction.bankData?.bank,
+            bank_agency: transaction.bankData?.agency,
+            bank_account: transaction.bankData?.account,
+            bank_cpf_cnpj: transaction.bankData?.cpfCnpj
+          });
+
+        if (recurringError) {
+          console.error('Error creating recurring transaction:', recurringError);
+        }
+      }
       
       // Refresh data to get the new transaction
       await refreshData();
