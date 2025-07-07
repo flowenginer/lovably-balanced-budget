@@ -63,6 +63,9 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     setIsLoading(true);
     try {
+      // Generate recurring transactions first
+      await generateRecurringTransactions();
+
       // Load user profile
       const { data: profileData } = await supabase
         .from('profiles')
@@ -174,6 +177,90 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.error('Error loading data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const generateRecurringTransactions = async () => {
+    if (!user) return;
+
+    try {
+      const today = new Date();
+      const firstDayOfCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const firstDayOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+      // Get all recurring transactions from previous months
+      const { data: recurringTransactions } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_recurring', true)
+        .lt('date', firstDayOfCurrentMonth.toISOString().split('T')[0]);
+
+      if (!recurringTransactions || recurringTransactions.length === 0) {
+        return;
+      }
+
+      const newTransactions = [];
+
+      for (const transaction of recurringTransactions) {
+        // Check if this recurring transaction already has a version for this month
+        const { data: existingTransaction } = await supabase
+          .from('transactions')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('category_id', transaction.category_id)
+          .eq('account_id', transaction.account_id)
+          .eq('description', transaction.description)
+          .eq('amount', transaction.amount)
+          .eq('is_recurring', true)
+          .gte('date', firstDayOfCurrentMonth.toISOString().split('T')[0])
+          .lt('date', firstDayOfNextMonth.toISOString().split('T')[0])
+          .maybeSingle();
+
+        // If no transaction exists for this month, create one
+        if (!existingTransaction) {
+          const originalDate = new Date(transaction.date);
+          const newDate = new Date(today.getFullYear(), today.getMonth(), originalDate.getDate());
+          
+          // If the day doesn't exist in current month (e.g., Feb 30), use last day of month
+          if (newDate.getMonth() !== today.getMonth()) {
+            newDate.setDate(0); // Sets to last day of previous month
+          }
+
+          newTransactions.push({
+            user_id: transaction.user_id,
+            type: transaction.type,
+            category_id: transaction.category_id,
+            account_id: transaction.account_id,
+            description: transaction.description,
+            amount: transaction.amount,
+            date: newDate.toISOString().split('T')[0],
+            payment_method: transaction.payment_method,
+            is_recurring: true,
+            observations: transaction.observations,
+            entity_type: transaction.entity_type,
+            attachment_url: transaction.attachment_url,
+            pix_key: transaction.pix_key,
+            pix_key_type: transaction.pix_key_type,
+            bank_name: transaction.bank_name,
+            bank_agency: transaction.bank_agency,
+            bank_account: transaction.bank_account,
+            bank_cpf_cnpj: transaction.bank_cpf_cnpj
+          });
+        }
+      }
+
+      if (newTransactions.length > 0) {
+        const { error: insertError } = await supabase
+          .from('transactions')
+          .insert(newTransactions);
+
+        if (insertError) {
+          console.error('Error creating recurring transactions:', insertError);
+        }
+      }
+    } catch (error) {
+      console.error('Error generating recurring transactions:', error);
     }
   };
 
@@ -295,39 +382,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         });
 
       if (error) throw error;
-
-      // If it's a recurring transaction, create next month's transaction
-      if (transaction.isRecurring) {
-        const nextMonth = new Date(transaction.date);
-        nextMonth.setMonth(nextMonth.getMonth() + 1);
-        
-        const { error: recurringError } = await supabase
-          .from('transactions')
-          .insert({
-            user_id: user.id,
-            type: transaction.type,
-            category_id: category.id,
-            account_id: account.id,
-            description: `${transaction.description} (Recorrente)`,
-            amount: transaction.amount,
-            date: nextMonth.toISOString().split('T')[0],
-            payment_method: transaction.paymentMethod,
-            is_recurring: true,
-            observations: transaction.observations,
-            entity_type: transaction.entityType,
-            attachment_url: transaction.attachment,
-            pix_key: transaction.pixData?.key,
-            pix_key_type: transaction.pixData?.keyType,
-            bank_name: transaction.bankData?.bank,
-            bank_agency: transaction.bankData?.agency,
-            bank_account: transaction.bankData?.account,
-            bank_cpf_cnpj: transaction.bankData?.cpfCnpj
-          });
-
-        if (recurringError) {
-          console.error('Error creating recurring transaction:', recurringError);
-        }
-      }
       
       // Refresh data to get the new transaction
       await refreshData();
