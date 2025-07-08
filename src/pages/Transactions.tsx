@@ -13,6 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Calendar, Filter, Search, Trash2, Edit } from 'lucide-react';
 import { Transaction } from '@/types/financial';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MobileTransactionCard } from '@/components/Mobile/MobileTransactionCard';
+import { MobileTransactionForm } from '@/components/Mobile/MobileTransactionForm';
 
 export default function Transactions() {
   const { 
@@ -24,6 +27,7 @@ export default function Transactions() {
     deleteTransaction 
   } = useFinancial();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -93,6 +97,15 @@ export default function Transactions() {
     setIsDialogOpen(false);
   };
 
+  const handleMobileSubmit = (data: Omit<Transaction, 'id'>) => {
+    addTransaction(data);
+
+    toast({
+      title: "Sucesso",
+      description: "Transação adicionada com sucesso!",
+    });
+  };
+
   const handleDelete = (id: string) => {
     deleteTransaction(id);
     toast({
@@ -110,6 +123,104 @@ export default function Transactions() {
 
   const typeCategories = entityCategories.filter(c => c.type === formData.type);
 
+  // Mobile version
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        {/* Header */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-4 shadow-sm">
+          <h1 className="text-xl font-bold mb-1">Transações</h1>
+          <p className="text-sm text-muted-foreground">
+            {activeTab === 'pf' ? 'Finanças pessoais' : 'Finanças empresariais'}
+          </p>
+        </div>
+
+        {/* Quick filters */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-4 shadow-sm">
+          <div className="flex gap-2 mb-3">
+            <Input
+              placeholder="Buscar..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 rounded-xl"
+            />
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(true)}
+              className="aspect-square rounded-xl"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="flex gap-2">
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger className="flex-1 rounded-xl">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="income">Receitas</SelectItem>
+                <SelectItem value="expense">Despesas</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="flex-1 rounded-xl">
+                <SelectValue placeholder="Categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                {entityCategories.map((category) => (
+                  <SelectItem key={category.id} value={category.name}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Transactions List */}
+        <div className="space-y-3">
+          {filteredTransactions.length > 0 ? (
+            filteredTransactions.map((transaction) => (
+              <MobileTransactionCard
+                key={transaction.id}
+                transaction={transaction}
+                categories={categories}
+                onDelete={handleDelete}
+                formatCurrency={formatCurrency}
+              />
+            ))
+          ) : (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-8 text-center shadow-sm">
+              <p className="text-muted-foreground mb-4">Nenhuma transação encontrada</p>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsDialogOpen(true)}
+                className="rounded-xl"
+              >
+                Criar primeira transação
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Form */}
+        <MobileTransactionForm
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onSubmit={handleMobileSubmit}
+          categories={categories}
+          accounts={accounts}
+          activeTab={activeTab}
+        />
+      </div>
+    );
+  }
+
+  // Desktop version
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -144,26 +255,34 @@ export default function Transactions() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="category">Categoria *</Label>
-                  <Select value={formData.category} onValueChange={(value) => 
-                    setFormData({...formData, category: value})
-                  }>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {typeCategories.map((category) => (
-                        <SelectItem key={`${category.id}-${category.name}`} value={category.name}>
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: category.color }}
-                            />
-                            {category.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Select value={formData.category} onValueChange={(value) => 
+                      setFormData({...formData, category: value})
+                    }>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Selecione ou digite uma categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {typeCategories.map((category) => (
+                          <SelectItem key={`${category.id}-${category.name}`} value={category.name}>
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: category.color }}
+                              />
+                              {category.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      placeholder="Nova categoria"
+                      value={formData.category}
+                      onChange={(e) => setFormData({...formData, category: e.target.value})}
+                      className="flex-1"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">

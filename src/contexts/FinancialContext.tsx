@@ -100,21 +100,27 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setCategories(Array.from(uniqueCategories.values()));
       }
 
-      // Load accounts
+      // Load accounts - remove duplicates by using a Map with unique key
       const { data: accountsData } = await supabase
         .from('accounts')
         .select('*')
         .order('name');
       
       if (accountsData) {
-        const formattedAccounts = accountsData.map(a => ({
-          id: a.id,
-          name: a.name,
-          type: a.type as 'checking' | 'savings' | 'cash' | 'investment' | 'credit',
-          balance: Number(a.balance || 0),
-          entityType: a.entity_type as 'pf' | 'pj'
-        }));
-        setAccounts(formattedAccounts);
+        const uniqueAccounts = new Map();
+        accountsData.forEach(a => {
+          const key = `${a.name}-${a.type}-${a.entity_type}`;
+          if (!uniqueAccounts.has(key)) {
+            uniqueAccounts.set(key, {
+              id: a.id,
+              name: a.name,
+              type: a.type as 'checking' | 'savings' | 'cash' | 'investment' | 'credit',
+              balance: Number(a.balance || 0),
+              entityType: a.entity_type as 'pf' | 'pj'
+            });
+          }
+        });
+        setAccounts(Array.from(uniqueAccounts.values()));
       }
 
       // Load transactions
@@ -361,12 +367,41 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!user) return;
 
     try {
-      // Find category and account IDs
-      const category = categories.find(c => c.name === transaction.category);
-      const account = accounts.find(a => a.name === transaction.account);
+      // Check if category exists, if not create it
+      let category = categories.find(c => c.name === transaction.category && c.entityType === transaction.entityType && c.type === transaction.type);
+      
+      if (!category) {
+        // Create new category
+        const { data: newCategory, error: categoryError } = await supabase
+          .from('categories')
+          .insert({
+            user_id: user.id,
+            name: transaction.category,
+            type: transaction.type,
+            entity_type: transaction.entityType,
+            color: transaction.type === 'income' ? '#10B981' : '#EF4444'
+          })
+          .select()
+          .single();
+          
+        if (categoryError) throw categoryError;
+        
+        category = {
+          id: newCategory.id,
+          name: newCategory.name,
+          type: newCategory.type as 'income' | 'expense',
+          entityType: newCategory.entity_type as 'pf' | 'pj',
+          color: newCategory.color
+        };
+        
+        // Update categories state
+        setCategories(prev => [...prev, category!]);
+      }
+      
+      const account = accounts.find(a => a.name === transaction.account && a.entityType === transaction.entityType);
 
-      if (!category || !account) {
-        throw new Error('Categoria ou conta não encontrada');
+      if (!account) {
+        throw new Error('Conta não encontrada');
       }
 
       const transactionData = {
