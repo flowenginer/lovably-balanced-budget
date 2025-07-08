@@ -255,34 +255,18 @@ export default function Transactions() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="category">Categoria *</Label>
-                  <div className="flex gap-2">
-                    <Select value={formData.category} onValueChange={(value) => 
-                      setFormData({...formData, category: value})
-                    }>
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Selecione ou digite uma categoria" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {typeCategories.map((category) => (
-                          <SelectItem key={`${category.id}-${category.name}`} value={category.name}>
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: category.color }}
-                              />
-                              {category.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      placeholder="Nova categoria"
-                      value={formData.category}
-                      onChange={(e) => setFormData({...formData, category: e.target.value})}
-                      className="flex-1"
-                    />
-                  </div>
+                  <Input
+                    id="category"
+                    placeholder="Digite ou selecione uma categoria"
+                    value={formData.category}
+                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    list="desktop-categories-list"
+                  />
+                  <datalist id="desktop-categories-list">
+                    {typeCategories.map((category) => (
+                      <option key={category.id} value={category.name} />
+                    ))}
+                  </datalist>
                 </div>
 
                 <div className="space-y-2">

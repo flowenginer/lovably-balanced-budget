@@ -113,34 +113,19 @@ export function MobileTransactionForm({
 
           <div className="space-y-2">
             <Label htmlFor="category">Categoria *</Label>
-            <div className="flex gap-2">
-              <Select value={formData.category} onValueChange={(value) => 
-                setFormData({...formData, category: value})
-              }>
-                <SelectTrigger className="flex-1 rounded-xl">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  {typeCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: category.color }}
-                        />
-                        {category.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                placeholder="Nova"
-                value={formData.category}
-                onChange={(e) => setFormData({...formData, category: e.target.value})}
-                className="flex-1 rounded-xl"
-              />
-            </div>
+            <Input
+              id="category"
+              placeholder="Digite ou selecione uma categoria"
+              value={formData.category}
+              onChange={(e) => setFormData({...formData, category: e.target.value})}
+              className="rounded-xl"
+              list="categories-list"
+            />
+            <datalist id="categories-list">
+              {typeCategories.map((category) => (
+                <option key={category.id} value={category.name} />
+              ))}
+            </datalist>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
