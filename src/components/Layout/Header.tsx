@@ -15,11 +15,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 export function Header() {
   const { user, logout } = useAuth();
   const { activeTab, setActiveTab, userProfile } = useFinancial();
+  const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
 
   return (
@@ -77,7 +79,19 @@ export function Header() {
           </Tabs>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            className="glass-effect hover-lift"
+          >
+            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Alternar tema</span>
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className={cn(
