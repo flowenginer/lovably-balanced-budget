@@ -31,38 +31,59 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50">
-      <div className="flex items-center justify-around px-2 py-2 relative">
-        {navItems.map((item, index) => (
-          <div key={item.path} className="flex-1 flex justify-center">
-            {index === 2 ? (
-              <>
-                {/* Add Transaction FAB */}
-                <Button
-                  onClick={onAddTransaction}
-                  size="icon"
-                  className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 -mt-6"
-                >
-                  <Plus className="h-6 w-6 text-white" />
-                </Button>
-              </>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(item.path)}
-                className={cn(
-                  "flex flex-col items-center gap-1 h-auto py-2 px-3",
-                  isActive(item.path) 
-                    ? "text-primary" 
-                    : "text-muted-foreground"
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                <span className="text-xs font-medium">{item.label}</span>
-              </Button>
-            )}
-          </div>
-        ))}
+      <div className="flex items-center justify-center px-4 py-3 relative">
+        {/* First two nav items */}
+        <div className="flex flex-1 justify-around">
+          {navItems.slice(0, 2).map((item) => (
+            <Button
+              key={item.path}
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(item.path)}
+              className={cn(
+                "flex flex-col items-center gap-1 h-auto py-2 px-3",
+                isActive(item.path) 
+                  ? "text-primary" 
+                  : "text-muted-foreground"
+              )}
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="text-xs font-medium">{item.label}</span>
+            </Button>
+          ))}
+        </div>
+
+        {/* Central FAB */}
+        <div className="mx-6">
+          <Button
+            onClick={onAddTransaction}
+            size="icon"
+            className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 relative -top-4"
+          >
+            <Plus className="h-6 w-6 text-white" />
+          </Button>
+        </div>
+
+        {/* Last two nav items */}
+        <div className="flex flex-1 justify-around">
+          {navItems.slice(2, 4).map((item) => (
+            <Button
+              key={item.path}
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(item.path)}
+              className={cn(
+                "flex flex-col items-center gap-1 h-auto py-2 px-3",
+                isActive(item.path) 
+                  ? "text-primary" 
+                  : "text-muted-foreground"
+              )}
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="text-xs font-medium">{item.label}</span>
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   );
