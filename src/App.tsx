@@ -36,8 +36,30 @@ if ('serviceWorker' in navigator) {
 const queryClient = new QueryClient();
 
 function AppRoutes() {
-  const { user, isLoading } = useAuth();
   const [showSplash, setShowSplash] = useState(true);
+  
+  let authState;
+  try {
+    authState = useAuth();
+  } catch (error) {
+    console.error('Auth context error:', error);
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-4">
+          <h1>Erro ao carregar a aplicação</h1>
+          <p>Verifique a conexão e tente novamente.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Recarregar
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  const { user, isLoading } = authState;
 
   if (isLoading) {
     return (

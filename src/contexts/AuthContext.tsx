@@ -37,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Create default categories and accounts for new users
         if (event === 'SIGNED_IN' && session?.user) {
+          // Don't block the auth flow with default data creation
           setTimeout(async () => {
             try {
               // Call the functions to create default data
@@ -45,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } catch (error) {
               console.log('Default data creation (might already exist):', error);
             }
-          }, 0);
+          }, 1000);
         }
         
         setIsLoading(false);
