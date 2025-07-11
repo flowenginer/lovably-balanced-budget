@@ -23,7 +23,8 @@ export default function Dashboard() {
     accounts, 
     categories,
     goals,
-    activeTab
+    activeTab,
+    addTransaction
   } = useFinancial();
 
   // Filter data by activeTab
@@ -94,7 +95,14 @@ export default function Dashboard() {
       <>
         <MobileDashboard onAddTransaction={() => setShowMobileForm(true)} />
         {showMobileForm && (
-          <MobileTransactionForm onClose={() => setShowMobileForm(false)} />
+          <MobileTransactionForm 
+            isOpen={showMobileForm}
+            onClose={() => setShowMobileForm(false)}
+            onSubmit={addTransaction}
+            categories={categories}
+            accounts={accounts}
+            activeTab={activeTab}
+          />
         )}
       </>
     );
@@ -320,7 +328,14 @@ export default function Dashboard() {
       </div>
       
       {showMobileForm && (
-        <MobileTransactionForm onClose={() => setShowMobileForm(false)} />
+        <MobileTransactionForm 
+          isOpen={showMobileForm}
+          onClose={() => setShowMobileForm(false)}
+          onSubmit={addTransaction}
+          categories={categories}
+          accounts={accounts}
+          activeTab={activeTab}
+        />
       )}
     </div>
   );
