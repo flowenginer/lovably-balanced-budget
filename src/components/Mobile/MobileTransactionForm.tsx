@@ -72,7 +72,7 @@ export function MobileTransactionForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm mx-4 rounded-2xl">
+      <DialogContent className="max-w-sm mx-4 rounded-2xl bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-center">Nova Transação</DialogTitle>
         </DialogHeader>
@@ -145,16 +145,16 @@ export function MobileTransactionForm({
               <Select value={formData.account} onValueChange={(value) => 
                 setFormData({...formData, account: value})
               }>
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue placeholder="Conta" />
-                </SelectTrigger>
-                <SelectContent>
-                  {entityAccounts.map((account) => (
-                    <SelectItem key={account.id} value={account.name}>
-                      {account.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+              <SelectTrigger className="rounded-xl bg-background border-border">
+                <SelectValue placeholder="Conta" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border">
+                {entityAccounts.map((account) => (
+                  <SelectItem key={account.id} value={account.name}>
+                    {account.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
               </Select>
             </div>
           </div>
@@ -164,10 +164,10 @@ export function MobileTransactionForm({
             <Select value={formData.paymentMethod} onValueChange={(value) => 
               setFormData({...formData, paymentMethod: value})
             }>
-              <SelectTrigger className="rounded-xl">
+              <SelectTrigger className="rounded-xl bg-background border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover border-border">
                 <SelectItem value="cash">Dinheiro</SelectItem>
                 <SelectItem value="debit">Cartão de Débito</SelectItem>
                 <SelectItem value="credit">Cartão de Crédito</SelectItem>

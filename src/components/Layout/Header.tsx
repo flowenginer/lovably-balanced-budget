@@ -105,19 +105,19 @@ export function Header() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 glass-effect border-white/20" align="end" forceMount>
+            <DropdownMenuContent className="w-56 bg-popover border-border z-50" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{userProfile?.name || 'Usuário'}</p>
+                  <p className="text-sm font-medium leading-none text-popover-foreground">{userProfile?.name || 'Usuário'}</p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {userProfile?.email || user?.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-white/20" />
+              <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={logout}
-                className="hover:bg-white/10 transition-colors duration-200 cursor-pointer"
+                className="hover:bg-accent transition-colors duration-200 cursor-pointer"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sair

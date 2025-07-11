@@ -170,3 +170,33 @@ All colors MUST be HSL.
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .mobile-container {
+    padding: 0.75rem;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  
+  .mobile-safe-area {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+}
+
+/* Safe area utilities */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Better text truncation */
+.truncate-mobile {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}

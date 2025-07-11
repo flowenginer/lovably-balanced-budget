@@ -128,37 +128,37 @@ export default function Transactions() {
     return (
       <div className="space-y-4">
         {/* Header */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-4 shadow-sm">
-          <h1 className="text-xl font-bold mb-1">Transações</h1>
+        <div className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border p-4 shadow-sm">
+          <h1 className="text-xl font-bold mb-1 text-card-foreground">Transações</h1>
           <p className="text-sm text-muted-foreground">
             {activeTab === 'pf' ? 'Finanças pessoais' : 'Finanças empresariais'}
           </p>
         </div>
 
         {/* Quick filters */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-4 shadow-sm">
+        <div className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border p-4 shadow-sm">
           <div className="flex gap-2 mb-3">
             <Input
               placeholder="Buscar..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 rounded-xl"
+              className="flex-1 rounded-xl bg-background border-border"
             />
             <Button
               variant="outline"
               onClick={() => setIsDialogOpen(true)}
-              className="aspect-square rounded-xl"
+              className="aspect-square rounded-xl flex-shrink-0"
             >
               <Plus className="h-4 w-4" />
             </Button>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 overflow-hidden">
             <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="flex-1 rounded-xl">
+              <SelectTrigger className="flex-1 rounded-xl bg-background border-border min-w-0">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover border-border">
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="income">Receitas</SelectItem>
                 <SelectItem value="expense">Despesas</SelectItem>
@@ -166,10 +166,10 @@ export default function Transactions() {
             </Select>
 
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="flex-1 rounded-xl">
+              <SelectTrigger className="flex-1 rounded-xl bg-background border-border min-w-0">
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover border-border">
                 <SelectItem value="all">Todas</SelectItem>
                 {entityCategories.map((category) => (
                   <SelectItem key={category.id} value={category.name}>
@@ -194,7 +194,7 @@ export default function Transactions() {
               />
             ))
           ) : (
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 p-8 text-center shadow-sm">
+            <div className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border p-8 text-center shadow-sm">
               <p className="text-muted-foreground mb-4">Nenhuma transação encontrada</p>
               <Button 
                 variant="outline" 

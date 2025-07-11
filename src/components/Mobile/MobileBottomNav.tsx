@@ -30,10 +30,10 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50">
-      <div className="flex items-center justify-center px-4 py-3 relative">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50 safe-area-pb">
+      <div className="flex items-center justify-center px-2 py-3 relative max-w-full">
         {/* First two nav items */}
-        <div className="flex flex-1 justify-around">
+        <div className="flex flex-1 justify-around min-w-0">
           {navItems.slice(0, 2).map((item) => (
             <Button
               key={item.path}
@@ -41,20 +41,20 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
               size="sm"
               onClick={() => navigate(item.path)}
               className={cn(
-                "flex flex-col items-center gap-1 h-auto py-2 px-3",
+                "flex flex-col items-center gap-1 h-auto py-2 px-2 min-w-0",
                 isActive(item.path) 
                   ? "text-primary" 
                   : "text-muted-foreground"
               )}
             >
-              <item.icon className="h-5 w-5" />
-              <span className="text-xs font-medium">{item.label}</span>
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <span className="text-xs font-medium truncate max-w-[60px]">{item.label}</span>
             </Button>
           ))}
         </div>
 
         {/* Central FAB */}
-        <div className="mx-6">
+        <div className="mx-4 flex-shrink-0">
           <Button
             onClick={onAddTransaction}
             size="icon"
@@ -65,7 +65,7 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
         </div>
 
         {/* Last two nav items */}
-        <div className="flex flex-1 justify-around">
+        <div className="flex flex-1 justify-around min-w-0">
           {navItems.slice(2, 4).map((item) => (
             <Button
               key={item.path}
@@ -73,14 +73,14 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
               size="sm"
               onClick={() => navigate(item.path)}
               className={cn(
-                "flex flex-col items-center gap-1 h-auto py-2 px-3",
+                "flex flex-col items-center gap-1 h-auto py-2 px-2 min-w-0",
                 isActive(item.path) 
                   ? "text-primary" 
                   : "text-muted-foreground"
               )}
             >
-              <item.icon className="h-5 w-5" />
-              <span className="text-xs font-medium">{item.label}</span>
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <span className="text-xs font-medium truncate max-w-[60px]">{item.label}</span>
             </Button>
           ))}
         </div>
