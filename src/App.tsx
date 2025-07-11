@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Layout } from "@/components/Layout/Layout";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { SplashScreen } from "@/components/SplashScreen";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
@@ -35,6 +37,7 @@ const queryClient = new QueryClient();
 
 function AppRoutes() {
   const { user, isLoading } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
 
   if (isLoading) {
     return (
@@ -45,7 +48,12 @@ function AppRoutes() {
   }
 
   if (!user) {
-    return <Login />;
+    return (
+      <>
+        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+        {!showSplash && <Login />}
+      </>
+    );
   }
 
   return (
