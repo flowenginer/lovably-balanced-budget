@@ -21,6 +21,9 @@ import {
   FileText,
   Sparkles,
 } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
+import logoDark from '@/assets/logo-dark.png';
+import logoLight from '@/assets/logo-light.png';
 
 const navigationItems = [
   {
@@ -58,6 +61,7 @@ const navigationItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
+  const { theme } = useTheme();
 
   return (
     <Sidebar className={cn(isCollapsed ? "w-16" : "w-72", "transition-all duration-300 border-r-0")}>
@@ -65,15 +69,11 @@ export function AppSidebar() {
         {/* Logo Section */}
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 gradient-bg-primary rounded-xl flex items-center justify-center glow-animation">
-              <span className="text-white font-bold text-lg">D</span>
-            </div>
-            {!isCollapsed && (
-              <div>
-                <h2 className="font-bold text-xl gradient-text">Dindin</h2>
-                <p className="text-xs text-muted-foreground">Controle Financeiro</p>
-              </div>
-            )}
+            <img 
+              src={theme === 'dark' ? logoDark : logoLight} 
+              alt="Dindin Logo" 
+              className={isCollapsed ? "h-10 w-auto" : "h-12 w-auto"}
+            />
           </div>
         </div>
 

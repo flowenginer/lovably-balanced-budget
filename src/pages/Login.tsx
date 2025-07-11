@@ -8,6 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail, Lock, User, Check } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
+import logoDark from '@/assets/logo-dark.png';
+import logoLight from '@/assets/logo-light.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,6 +19,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { login, signup } = useAuth();
   const { toast } = useToast();
+  const { theme } = useTheme();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,11 +85,14 @@ export default function Login() {
       
       <Card className="w-full max-w-md bg-slate-900/90 border-slate-700/50 backdrop-blur-sm relative z-10">
         <CardHeader className="text-center space-y-6 pb-8">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/25">
-            <span className="text-white font-bold text-2xl">D</span>
+          <div className="mx-auto flex items-center justify-center">
+            <img 
+              src={theme === 'dark' ? logoDark : logoLight} 
+              alt="Dindin Logo" 
+              className="h-16 w-auto"
+            />
           </div>
           <div className="space-y-2">
-            <CardTitle className="text-3xl font-bold text-white">Dindin</CardTitle>
             <CardDescription className="text-slate-400 text-base">
               Seu controle financeiro inteligente
             </CardDescription>

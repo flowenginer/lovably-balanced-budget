@@ -17,6 +17,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import logoDark from '@/assets/logo-dark.png';
+import logoLight from '@/assets/logo-light.png';
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -39,10 +41,11 @@ export function Header() {
           {/* Mobile Logo */}
           {isMobile && (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 gradient-bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">D</span>
-              </div>
-              <h2 className="font-bold text-lg gradient-text">Dindin</h2>
+              <img 
+                src={theme === 'dark' ? logoDark : logoLight} 
+                alt="Dindin Logo" 
+                className="h-8 w-auto"
+              />
             </div>
           )}
           
