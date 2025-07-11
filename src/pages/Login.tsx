@@ -87,9 +87,9 @@ export default function Login() {
         <CardHeader className="text-center space-y-6 pb-8">
           <div className="mx-auto flex items-center justify-center">
             <img 
-              src={theme === 'dark' ? logoDark : logoLight} 
+              src={logoDark}
               alt="Dindin Logo" 
-              className="h-16 w-auto"
+              className="h-20 w-auto"
             />
           </div>
           <div className="space-y-2">

@@ -44,7 +44,7 @@ export function Header() {
               <img 
                 src={theme === 'dark' ? logoDark : logoLight} 
                 alt="Dindin Logo" 
-                className="h-8 w-auto"
+                className="h-10 w-auto"
               />
             </div>
           )}

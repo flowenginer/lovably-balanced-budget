@@ -72,7 +72,7 @@ export function AppSidebar() {
             <img 
               src={theme === 'dark' ? logoDark : logoLight} 
               alt="Dindin Logo" 
-              className={isCollapsed ? "h-10 w-auto" : "h-12 w-auto"}
+              className={isCollapsed ? "h-12 w-auto" : "h-14 w-auto"}
             />
           </div>
         </div>
