@@ -17,8 +17,18 @@ interface BeforeInstallPromptEvent extends Event {
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
+  
+  // Use navigate safely - only when inside Router context
+  let navigate: ((path: string) => void) | null = null;
+  try {
+    navigate = useNavigate();
+  } catch (error) {
+    // If useNavigate fails, we're outside Router context
+    navigate = (path: string) => {
+      window.location.href = path;
+    };
+  }
   
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
@@ -121,7 +131,7 @@ export function PWAInstallPrompt() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/install')}
+              onClick={() => navigate && navigate('/install')}
               className="flex-1"
             >
               Ver Tutorial
@@ -175,7 +185,7 @@ export function PWAInstallPrompt() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/install')}
+              onClick={() => navigate && navigate('/install')}
               className="flex-1"
             >
               Tutorial

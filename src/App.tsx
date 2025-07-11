@@ -74,7 +74,6 @@ function AppRoutes() {
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <PWAInstallPrompt />
     </Layout>
   );
 }
@@ -98,6 +97,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <AppRoutes />
+            <PWAInstallPrompt />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
