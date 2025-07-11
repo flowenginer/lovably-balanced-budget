@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, X, Smartphone } from 'lucide-react';
+import { X, Download, Smartphone, Share, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -15,51 +16,53 @@ interface BeforeInstallPromptEvent extends Event {
 
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
+  
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setIsInstallable(true);
-      // Show prompt after 30 seconds on mobile, 60 seconds on desktop
+      // Show prompt after 3 seconds on mobile, don't auto-show on desktop
       setTimeout(() => {
         setShowPrompt(true);
-      }, isMobile ? 30000 : 60000);
+      }, 3000);
     };
 
     const handleAppInstalled = () => {
-      setIsInstalled(true);
       setShowPrompt(false);
-      setIsInstallable(false);
+      setDeferredPrompt(null);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    // Only for non-iOS devices (Android, desktop)
+    if (!isIOS) {
+      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.addEventListener('appinstalled', handleAppInstalled);
+    }
 
-    // Check if already running as PWA
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
+    // Para iOS, mostra prompt personalizado após 3 segundos
+    if (isIOS && !isInStandaloneMode) {
+      const timer = setTimeout(() => setShowPrompt(true), 3000);
+      return () => clearTimeout(timer);
     }
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
+      if (!isIOS) {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.removeEventListener('appinstalled', handleAppInstalled);
+      }
     };
-  }, [isMobile]);
+  }, [isIOS, isInStandaloneMode]);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      setIsInstalled(true);
-    }
     
     setDeferredPrompt(null);
     setShowPrompt(false);
@@ -71,72 +74,117 @@ export function PWAInstallPrompt() {
     localStorage.setItem('pwa-prompt-dismissed', Date.now().toString());
   };
 
-  // Don't show if not installable, already installed, or recently dismissed
-  if (!isInstallable || isInstalled || !showPrompt) {
-    return null;
-  }
-
+  // Check if recently dismissed
   const dismissedTime = localStorage.getItem('pwa-prompt-dismissed');
   if (dismissedTime && Date.now() - parseInt(dismissedTime) < 24 * 60 * 60 * 1000) {
     return null;
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md glass-effect border-primary/20 animate-scale-in">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4">
-            <Smartphone className="h-8 w-8 text-white" />
-          </div>
-          <CardTitle className="gradient-text">Instalar Dindin</CardTitle>
-          <CardDescription>
-            Instale o Dindin no seu dispositivo para uma experiência mais rápida e completa!
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2 text-sm text-muted-foreground">
+  // Don't show if already installed or prompt not ready
+  if (isInStandaloneMode || !showPrompt) {
+    return null;
+  }
+
+  // Renderiza prompt para iOS
+  if (isIOS && showPrompt && !isInStandaloneMode) {
+    return (
+      <Card className="fixed bottom-4 left-4 right-4 z-50 shadow-xl bg-card border-border mx-auto max-w-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              ✓ Acesso offline
+              <Smartphone className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Instalar Dindin</CardTitle>
             </div>
-            <div className="flex items-center gap-2">
-              ✓ Notificações push
-            </div>
-            <div className="flex items-center gap-2">
-              ✓ Melhor performance
-            </div>
-            <div className="flex items-center gap-2">
-              ✓ Ícone na tela inicial
-            </div>
-          </div>
-          
-          <div className="flex gap-2">
-            <Button 
-              onClick={handleInstallClick}
-              className="flex-1 gap-2"
-              size="lg"
-            >
-              <Download className="h-4 w-4" />
-              Instalar App
-            </Button>
-            <Button 
-              onClick={handleDismiss}
-              variant="outline"
-              size="lg"
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowPrompt(false)}
+              className="h-8 w-8"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
-          
-          {isMobile && (
-            <div className="text-xs text-muted-foreground text-center">
-              {navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad') 
-                ? 'No Safari: toque em "Compartilhar" → "Adicionar à Tela de Início"'
-                : 'Toque no menu do navegador e selecione "Adicionar à tela inicial"'
-              }
-            </div>
-          )}
+        </CardHeader>
+        <CardContent className="space-y-3 pt-0">
+          <CardDescription className="text-sm">
+            Adicione à tela inicial para uma experiência melhor
+          </CardDescription>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Share className="h-3 w-3" />
+            <span>Toque em</span>
+            <Share className="h-3 w-3" />
+            <span>→</span>
+            <Plus className="h-3 w-3" />
+            <span>"Adicionar à Tela de Início"</span>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/install')}
+              className="flex-1"
+            >
+              Ver Tutorial
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setShowPrompt(false)}
+              className="flex-1"
+            >
+              OK
+            </Button>
+          </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    );
+  }
+
+  // Renderiza prompt para Android/Desktop (quando deferredPrompt está disponível)
+  if (deferredPrompt) {
+    return (
+      <Card className="fixed bottom-4 left-4 right-4 z-50 shadow-xl bg-card border-border mx-auto max-w-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Smartphone className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Instalar Dindin</CardTitle>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDismiss}
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3 pt-0">
+          <CardDescription className="text-sm">
+            Instale o app para acesso rápido e funcionalidades offline
+          </CardDescription>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleInstallClick}
+              size="sm"
+              className="flex-1 gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Instalar
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/install')}
+              className="flex-1"
+            >
+              Tutorial
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return null;
 }
