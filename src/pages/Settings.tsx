@@ -9,13 +9,15 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { User, Settings as SettingsIcon, Shield, Bell, Palette, Download } from 'lucide-react';
+import { User, Settings as SettingsIcon, Shield, Bell, Palette, Download, Smartphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function Settings() {
   const { user, logout } = useAuth();
   const { userProfile } = useFinancial();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [profile, setProfile] = useState({
     name: userProfile?.name || '',
@@ -266,6 +268,15 @@ export default function Settings() {
           >
             <Download className="h-4 w-4 mr-2" />
             Exportar Meus Dados
+          </Button>
+
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => navigate('/install')}
+          >
+            <Smartphone className="h-4 w-4 mr-2" />
+            Como Instalar o App
           </Button>
 
           <Separator />

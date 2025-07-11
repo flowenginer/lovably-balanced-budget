@@ -18,6 +18,7 @@ import AIFinance from "./pages/AIFinance";
 import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
 import Categories from "./pages/Categories";
+import InstallApp from "./pages/InstallApp";
 import NotFound from "./pages/NotFound";
 
 // Register service worker
@@ -67,6 +68,7 @@ function AppRoutes() {
         <Route path="/ai" element={<AIFinance />} />
         <Route path="/goals" element={<Goals />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/install" element={<InstallApp />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <PWAInstallPrompt />
