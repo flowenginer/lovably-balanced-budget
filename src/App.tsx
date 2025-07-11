@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Layout } from "@/components/Layout/Layout";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
@@ -16,6 +17,19 @@ import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
 import Categories from "./pages/Categories";
 import NotFound from "./pages/NotFound";
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('SW registered: ', registration);
+      })
+      .catch((registrationError) => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  });
+}
 
 const queryClient = new QueryClient();
 
@@ -47,13 +61,14 @@ function AppRoutes() {
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <PWAInstallPrompt />
     </Layout>
   );
 }
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="dark" storageKey="financeai-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="dindin-theme">
       <TooltipProvider>
         <Toaster />
         <Sonner />

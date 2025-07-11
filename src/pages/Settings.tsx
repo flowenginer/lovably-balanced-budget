@@ -305,7 +305,7 @@ export default function Settings() {
           </div>
           <div className="flex justify-between">
             <span className="text-sm">Desenvolvido por:</span>
-            <span className="text-sm font-medium">FinanceAI Team</span>
+            <span className="text-sm font-medium">Dindin Team</span>
           </div>
         </CardContent>
       </Card>

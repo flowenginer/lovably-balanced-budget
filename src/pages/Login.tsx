@@ -82,12 +82,12 @@ export default function Login() {
       <Card className="w-full max-w-md bg-slate-900/90 border-slate-700/50 backdrop-blur-sm relative z-10">
         <CardHeader className="text-center space-y-6 pb-8">
           <div className="mx-auto w-16 h-16 bg-gradient-to-r from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/25">
-            <span className="text-white font-bold text-2xl">F</span>
+            <span className="text-white font-bold text-2xl">D</span>
           </div>
           <div className="space-y-2">
-            <CardTitle className="text-3xl font-bold text-white">FinanceAI</CardTitle>
+            <CardTitle className="text-3xl font-bold text-white">Dindin</CardTitle>
             <CardDescription className="text-slate-400 text-base">
-              Sua gestão financeira inteligente
+              Seu controle financeiro inteligente
             </CardDescription>
           </div>
         </CardHeader>

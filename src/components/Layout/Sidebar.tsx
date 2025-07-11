@@ -66,12 +66,12 @@ export function AppSidebar() {
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 gradient-bg-primary rounded-xl flex items-center justify-center glow-animation">
-              <span className="text-white font-bold text-lg">F</span>
+              <span className="text-white font-bold text-lg">D</span>
             </div>
             {!isCollapsed && (
               <div>
-                <h2 className="font-bold text-xl gradient-text">FinanceAI</h2>
-                <p className="text-xs text-muted-foreground">Gestão Inteligente</p>
+                <h2 className="font-bold text-xl gradient-text">Dindin</h2>
+                <p className="text-xs text-muted-foreground">Controle Financeiro</p>
               </div>
             )}
           </div>

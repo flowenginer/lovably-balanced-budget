@@ -34,7 +34,7 @@ export function Layout({ children }: LayoutProps) {
             <Header />
             <main className={cn(
               "flex-1 overflow-auto",
-              isMobile ? "p-4 pb-20" : "p-6"
+              isMobile ? "px-4 pr-6 py-4 pb-20" : "p-6"
             )}>
               <div className={cn(
                 "mx-auto",

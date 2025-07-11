@@ -31,7 +31,7 @@ export function Header() {
     )}>
       <div className={cn(
         "flex items-center justify-between h-full",
-        isMobile ? "px-4" : "px-6"
+        isMobile ? "px-4 pr-6" : "px-6"
       )}>
         <div className="flex items-center gap-4">
           {!isMobile && <SidebarTrigger className="hover-lift hover:bg-white/20" />}
@@ -40,9 +40,9 @@ export function Header() {
           {isMobile && (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 gradient-bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">F</span>
+                <span className="text-white font-bold text-sm">D</span>
               </div>
-              <h2 className="font-bold text-lg gradient-text">FinanceAI</h2>
+              <h2 className="font-bold text-lg gradient-text">Dindin</h2>
             </div>
           )}
           

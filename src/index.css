@@ -184,13 +184,22 @@ All colors MUST be HSL.
   }
 }
 
-/* Safe area utilities */
+/* Safe area utilities for iOS */
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom, 1rem);
 }
 
 .safe-area-pt {
   padding-top: env(safe-area-inset-top, 0);
+  padding-top: max(env(safe-area-inset-top, 0), 1rem);
+}
+
+/* PWA specific styles */
+@media all and (display-mode: standalone) {
+  body {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
 }
 
 /* Better text truncation */
