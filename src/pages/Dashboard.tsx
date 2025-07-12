@@ -17,6 +17,7 @@ import { ptBR } from 'date-fns/locale';
 export default function Dashboard() {
   const isMobile = useIsMobile();
   const [showMobileForm, setShowMobileForm] = useState(false);
+  const [initialTransactionType, setInitialTransactionType] = useState<'income' | 'expense'>('expense');
   
   const { 
     transactions, 
@@ -93,7 +94,10 @@ export default function Dashboard() {
   if (isMobile) {
     return (
       <>
-        <MobileDashboard onAddTransaction={() => setShowMobileForm(true)} />
+        <MobileDashboard onAddTransaction={(type) => {
+          if (type) setInitialTransactionType(type);
+          setShowMobileForm(true);
+        }} />
         {showMobileForm && (
           <MobileTransactionForm 
             isOpen={showMobileForm}
@@ -102,6 +106,7 @@ export default function Dashboard() {
             categories={categories}
             accounts={accounts}
             activeTab={activeTab}
+            initialType={initialTransactionType}
           />
         )}
       </>
@@ -118,7 +123,10 @@ export default function Dashboard() {
             Visão geral - {activeTab === 'pf' ? 'Pessoa Física' : 'Pessoa Jurídica'}
           </p>
         </div>
-        <Button onClick={() => setShowMobileForm(true)} className="gap-2">
+        <Button onClick={() => {
+          setInitialTransactionType('expense');
+          setShowMobileForm(true);
+        }} className="gap-2">
           <Plus className="h-4 w-4" />
           Nova Transação
         </Button>
@@ -335,6 +343,7 @@ export default function Dashboard() {
           categories={categories}
           accounts={accounts}
           activeTab={activeTab}
+          initialType={initialTransactionType}
         />
       )}
     </div>

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Target, Plus, Calendar, TrendingUp, CheckCircle } from 'lucide-react';
+import { Target, Plus, Calendar, TrendingUp, CheckCircle, Edit2, Trash2 } from 'lucide-react';
 import { useFinancial } from '@/contexts/FinancialContext';
 
 export default function Goals() {
@@ -69,6 +69,25 @@ export default function Goals() {
     ));
   };
 
+  const editGoal = (goalId: string) => {
+    const goal = goals.find(g => g.id === goalId);
+    if (goal) {
+      setFormData({
+        title: goal.title,
+        targetAmount: goal.targetAmount.toString(),
+        deadline: goal.deadline,
+        category: goal.category
+      });
+      setIsDialogOpen(true);
+    }
+  };
+
+  const deleteGoal = (goalId: string) => {
+    if (confirm('Tem certeza que deseja excluir esta meta?')) {
+      setGoals(goals.filter(g => g.id !== goalId));
+    }
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -109,7 +128,7 @@ export default function Goals() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-4 md:px-6 pb-24 md:pb-6">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 md:px-6 pb-32 md:pb-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Metas Financeiras</h1>
@@ -288,35 +307,51 @@ export default function Goals() {
                     <div className="text-sm text-muted-foreground">
                       Faltam: {formatCurrency(Math.max(0, goal.targetAmount - goal.currentAmount))}
                     </div>
-                    {!isCompleted && (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateGoalProgress(goal.id, 100)}
-                        >
-                          +R$ 100
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateGoalProgress(goal.id, 500)}
-                        >
-                          +R$ 500
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            const amount = prompt('Digite o valor a adicionar:');
-                            if (amount && !isNaN(parseFloat(amount))) {
-                              updateGoalProgress(goal.id, parseFloat(amount));
-                            }
-                          }}
-                        >
-                          Adicionar Valor
-                        </Button>
-                      </div>
-                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => editGoal(goal.id)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deleteGoal(goal.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      {!isCompleted && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateGoalProgress(goal.id, 100)}
+                          >
+                            +R$ 100
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateGoalProgress(goal.id, 500)}
+                          >
+                            +R$ 500
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              const amount = prompt('Digite o valor a adicionar:');
+                              if (amount && !isNaN(parseFloat(amount))) {
+                                updateGoalProgress(goal.id, parseFloat(amount));
+                              }
+                            }}
+                          >
+                            Adicionar Valor
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

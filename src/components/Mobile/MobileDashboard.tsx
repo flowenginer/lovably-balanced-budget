@@ -22,7 +22,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface MobileDashboardProps {
-  onAddTransaction: () => void;
+  onAddTransaction: (type?: 'income' | 'expense') => void;
 }
 
 export function MobileDashboard({ onAddTransaction }: MobileDashboardProps) {
@@ -150,11 +150,11 @@ export function MobileDashboard({ onAddTransaction }: MobileDashboardProps) {
 
       {/* Quick Actions */}
       <div className="px-4 mb-6">
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <Button
             variant="outline"
             className="flex flex-col items-center gap-2 h-auto py-4 bg-card/50 hover:bg-card border-border/50"
-            onClick={onAddTransaction}
+            onClick={() => onAddTransaction('income')}
           >
             <TrendingUp className="h-5 w-5 text-green-500" />
             <span className="text-xs">Receita</span>
@@ -163,26 +163,10 @@ export function MobileDashboard({ onAddTransaction }: MobileDashboardProps) {
           <Button
             variant="outline"
             className="flex flex-col items-center gap-2 h-auto py-4 bg-card/50 hover:bg-card border-border/50"
-            onClick={onAddTransaction}
+            onClick={() => onAddTransaction('expense')}
           >
             <TrendingDown className="h-5 w-5 text-red-500" />
             <span className="text-xs">Despesa</span>
-          </Button>
-          
-          <Button
-            variant="outline"
-            className="flex flex-col items-center gap-2 h-auto py-4 bg-card/50 hover:bg-card border-border/50"
-          >
-            <AlertCircle className="h-5 w-5 text-orange-500" />
-            <span className="text-xs">Cartão</span>
-          </Button>
-          
-          <Button
-            variant="outline"
-            className="flex flex-col items-center gap-2 h-auto py-4 bg-card/50 hover:bg-card border-border/50"
-          >
-            <PlusCircle className="h-5 w-5 text-blue-500" />
-            <span className="text-xs">Transferir</span>
           </Button>
         </div>
       </div>
@@ -234,7 +218,7 @@ export function MobileDashboard({ onAddTransaction }: MobileDashboardProps) {
             <CardContent className="p-6 text-center">
               <p className="text-muted-foreground">Nenhuma transação encontrada</p>
               <Button 
-                onClick={onAddTransaction}
+                onClick={() => onAddTransaction()}
                 className="mt-3"
                 size="sm"
               >

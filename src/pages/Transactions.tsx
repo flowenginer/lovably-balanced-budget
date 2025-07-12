@@ -33,6 +33,7 @@ export default function Transactions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
+  const [initialTransactionType, setInitialTransactionType] = useState<'income' | 'expense'>('expense');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -146,7 +147,10 @@ export default function Transactions() {
             />
             <Button
               variant="outline"
-              onClick={() => setIsDialogOpen(true)}
+              onClick={() => {
+                setInitialTransactionType('expense');
+                setIsDialogOpen(true);
+              }}
               className="aspect-square rounded-xl flex-shrink-0"
             >
               <Plus className="h-4 w-4" />
@@ -182,7 +186,7 @@ export default function Transactions() {
         </div>
 
         {/* Transactions List */}
-        <div className="space-y-3">
+        <div className="space-y-3 pb-32">
           {filteredTransactions.length > 0 ? (
             filteredTransactions.map((transaction) => (
               <MobileTransactionCard
@@ -198,7 +202,10 @@ export default function Transactions() {
               <p className="text-muted-foreground mb-4">Nenhuma transação encontrada</p>
               <Button 
                 variant="outline" 
-                onClick={() => setIsDialogOpen(true)}
+                onClick={() => {
+                  setInitialTransactionType('expense');
+                  setIsDialogOpen(true);
+                }}
                 className="rounded-xl"
               >
                 Criar primeira transação
@@ -215,6 +222,7 @@ export default function Transactions() {
           categories={categories}
           accounts={accounts}
           activeTab={activeTab}
+          initialType={initialTransactionType}
         />
       </div>
     );

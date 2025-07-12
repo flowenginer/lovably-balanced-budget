@@ -15,7 +15,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { User, Settings, LogOut, Sun, Moon, Sparkles, Cog } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import logoDark from '@/assets/logo-dark.png';
 import logoLight from '@/assets/logo-light.png';
@@ -25,6 +26,7 @@ export function Header() {
   const { activeTab, setActiveTab, userProfile } = useFinancial();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   return (
     <header className={cn(
@@ -118,6 +120,25 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              {isMobile && (
+                <>
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/ai')}
+                    className="hover:bg-accent transition-colors duration-200 cursor-pointer"
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    IA
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/settings')}
+                    className="hover:bg-accent transition-colors duration-200 cursor-pointer"
+                  >
+                    <Cog className="h-4 w-4 mr-2" />
+                    Configurações
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem 
                 onClick={logout}
                 className="hover:bg-accent transition-colors duration-200 cursor-pointer"

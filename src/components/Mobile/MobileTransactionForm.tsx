@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,6 +16,7 @@ interface MobileTransactionFormProps {
   categories: Array<{ id: string; name: string; type: 'income' | 'expense'; color: string }>;
   accounts: Array<{ id: string; name: string }>;
   activeTab: 'pf' | 'pj';
+  initialType?: 'income' | 'expense';
 }
 
 export function MobileTransactionForm({
@@ -24,10 +25,11 @@ export function MobileTransactionForm({
   onSubmit,
   categories,
   accounts,
-  activeTab
+  activeTab,
+  initialType = 'expense'
 }: MobileTransactionFormProps) {
   const [formData, setFormData] = useState({
-    type: 'expense' as 'income' | 'expense',
+    type: initialType as 'income' | 'expense',
     category: '',
     description: '',
     amount: '',
@@ -37,6 +39,11 @@ export function MobileTransactionForm({
     isRecurring: false,
     observations: '',
   });
+
+  // Update form type when initialType changes
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, type: initialType, category: '' }));
+  }, [initialType]);
 
   const typeCategories = categories.filter(c => c.type === formData.type);
   const entityAccounts = accounts;
