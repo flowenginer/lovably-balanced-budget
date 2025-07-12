@@ -35,7 +35,7 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
   ];
 
   return (
-    <div className="fixed bottom-6 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50 pb-2">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50 pb-safe">
       <div className="flex items-center justify-center px-2 py-3 relative max-w-full">
         {/* First two nav items */}
         <div className="flex flex-1 justify-around min-w-0">
