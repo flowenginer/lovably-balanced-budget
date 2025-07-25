@@ -1,6 +1,8 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFinancial } from '@/contexts/FinancialContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Budget } from '@/types/financial';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +20,7 @@ export default function Dashboard() {
   const isMobile = useIsMobile();
   const [showMobileForm, setShowMobileForm] = useState(false);
   const [initialTransactionType, setInitialTransactionType] = useState<'income' | 'expense'>('expense');
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   
   const { 
     transactions, 
@@ -42,12 +45,12 @@ export default function Dashboard() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   // Monthly data for current month
-  const currentMonth = new Date().getMonth();
+  const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
   
   const monthlyTransactions = filteredTransactions.filter(t => {
     const transactionDate = new Date(t.date);
-    return transactionDate.getMonth() === currentMonth && 
+    return transactionDate.getMonth() + 1 === currentMonth && 
            transactionDate.getFullYear() === currentYear;
   });
 
@@ -58,6 +61,61 @@ export default function Dashboard() {
   const monthlyExpenses = monthlyTransactions
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
+
+  // Carregar orçamentos
+  const loadBudgets = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('budgets')
+        .select('*')
+        .eq('entity_type', activeTab)
+        .eq('month', currentMonth)
+        .eq('year', currentYear);
+
+      if (error) throw error;
+      
+      const mappedBudgets: Budget[] = (data || []).map(item => ({
+        id: item.id,
+        userId: item.user_id,
+        categoryId: item.category_id,
+        amount: item.amount,
+        month: item.month,
+        year: item.year,
+        entityType: item.entity_type as 'pf' | 'pj',
+        createdAt: item.created_at,
+        updatedAt: item.updated_at
+      }));
+      
+      setBudgets(mappedBudgets);
+    } catch (error) {
+      console.error('Erro ao carregar orçamentos:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadBudgets();
+  }, [activeTab]);
+
+  // Calcular status dos orçamentos
+  const budgetStatus = budgets.map(budget => {
+    const categoryName = categories.find(c => c.id === budget.categoryId)?.name || '';
+    const spent = monthlyTransactions
+      .filter(t => t.type === 'expense' && t.category === categoryName)
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const percentage = budget.amount > 0 ? (spent / budget.amount) * 100 : 0;
+    
+    return {
+      ...budget,
+      categoryName,
+      spent,
+      percentage,
+      status: percentage >= 100 ? 'exceeded' : percentage >= 80 ? 'warning' : 'normal'
+    };
+  });
+
+  const budgetsInLimit = budgetStatus.filter(b => b.percentage < 100).length;
+  const budgetsExceeded = budgetStatus.filter(b => b.percentage >= 100).length;
 
   // Chart data
   const dailyData = eachDayOfInterval({
@@ -297,40 +355,89 @@ export default function Dashboard() {
 
         <Card className="col-span-3 glass-effect border-white/20">
           <CardHeader>
-            <CardTitle>Metas Financeiras</CardTitle>
-            <CardDescription>Progresso das suas metas</CardDescription>
+            <CardTitle>Resumo de Orçamentos</CardTitle>
+            <CardDescription>
+              {budgets.length > 0 ? 
+                `${budgetsInLimit} de ${budgets.length} orçamentos dentro do limite` :
+                'Nenhum orçamento criado'
+              }
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {goals.filter(g => g.entityType === activeTab).slice(0, 3).map((goal) => {
-                const progress = ((goal.currentAmount || 0) / goal.targetAmount) * 100;
-                return (
-                  <div key={goal.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{goal.title}</span>
-                      <Badge variant={progress >= 100 ? "default" : "secondary"}>
-                        {progress.toFixed(0)}%
-                      </Badge>
-                    </div>
-                    <div className="bg-white/10 rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min(progress, 100)}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{formatCurrency(goal.currentAmount || 0)}</span>
-                      <span>{formatCurrency(goal.targetAmount)}</span>
-                    </div>
+            {budgets.length > 0 ? (
+              <div className="space-y-4">
+                {/* Resumo geral */}
+                <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Status Geral</span>
                   </div>
-                );
-              })}
-              {goals.filter(g => g.entityType === activeTab).length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
-                  Nenhuma meta definida
+                  <div className="flex items-center gap-2">
+                    {budgetsExceeded > 0 && (
+                      <Badge variant="destructive" className="text-xs">
+                        {budgetsExceeded} excedido{budgetsExceeded > 1 ? 's' : ''}
+                      </Badge>
+                    )}
+                    <Badge variant="default" className="text-xs">
+                      {budgetsInLimit} ok
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Orçamentos com maior uso */}
+                {budgetStatus
+                  .sort((a, b) => b.percentage - a.percentage)
+                  .slice(0, 3)
+                  .map((budget) => (
+                    <div key={budget.id} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{budget.categoryName}</span>
+                        <Badge variant={
+                          budget.status === 'exceeded' ? 'destructive' :
+                          budget.status === 'warning' ? 'secondary' : 'default'
+                        }>
+                          {budget.percentage.toFixed(0)}%
+                        </Badge>
+                      </div>
+                      <div className="bg-white/10 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            budget.status === 'exceeded' ? 'bg-red-500' :
+                            budget.status === 'warning' ? 'bg-yellow-500' : 'bg-primary'
+                          }`}
+                          style={{ width: `${Math.min(budget.percentage, 100)}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{formatCurrency(budget.spent)}</span>
+                        <span>{formatCurrency(budget.amount)}</span>
+                      </div>
+                      {budget.status === 'exceeded' && (
+                        <div className="flex items-center gap-1 text-xs text-red-400">
+                          <AlertCircle className="h-3 w-3" />
+                          Orçamento excedido!
+                        </div>
+                      )}
+                      {budget.status === 'warning' && (
+                        <div className="flex items-center gap-1 text-xs text-yellow-400">
+                          <AlertCircle className="h-3 w-3" />
+                          Próximo do limite
+                        </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Target className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground mb-3">
+                  Nenhum orçamento definido
                 </p>
-              )}
-            </div>
+                <Button size="sm" onClick={() => window.location.href = '/budgets'}>
+                  Criar Orçamento
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

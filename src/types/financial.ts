@@ -61,3 +61,15 @@ export interface FinancialGoal {
   deadline: string;
   entityType: 'pf' | 'pj';
 }
+
+export interface Budget {
+  id: string;
+  userId: string;
+  categoryId: string;
+  amount: number;
+  month: number;
+  year: number;
+  entityType: 'pf' | 'pj';
+  createdAt: string;
+  updatedAt: string;
+}

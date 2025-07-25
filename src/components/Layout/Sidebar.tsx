@@ -20,6 +20,7 @@ import {
   TrendingUp,
   FileText,
   Sparkles,
+  Target,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import logoDark from '@/assets/logo-dark.png';
@@ -35,6 +36,11 @@ const navigationItems = [
     title: 'Transações',
     url: '/transactions',
     icon: Circle,
+  },
+  {
+    title: 'Orçamentos',
+    url: '/budgets',
+    icon: Target,
   },
   {
     title: 'Relatórios',
