@@ -16,7 +16,7 @@ interface LayoutProps {
 
 function LayoutContent({ children }: LayoutProps) {
   const { user } = useAuth();
-  const { categories, accounts, activeTab, addTransaction } = useFinancial();
+  const { categories, accounts, addTransaction } = useFinancial();
   const isMobile = useIsMobile();
   const [showMobileForm, setShowMobileForm] = useState(false);
   const [initialTransactionType, setInitialTransactionType] = useState<'income' | 'expense'>('expense');
@@ -65,7 +65,6 @@ function LayoutContent({ children }: LayoutProps) {
             onSubmit={addTransaction}
             categories={categories}
             accounts={accounts}
-            activeTab={activeTab}
             initialType={initialTransactionType}
           />
         )}

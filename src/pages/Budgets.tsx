@@ -15,7 +15,7 @@ import { Plus, Target, TrendingUp, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Budgets() {
-  const { categories, transactions, activeTab } = useFinancial();
+  const { categories, transactions } = useFinancial();
   const { user } = useAuth();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,9 +30,9 @@ export default function Budgets() {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
-  // Filtrar categorias de despesa do tipo ativo
+  // Filtrar categorias de despesa
   const expenseCategories = categories.filter(cat => 
-    cat.type === 'expense' && cat.entityType === activeTab
+    cat.type === 'expense'
   );
 
   // Carregar orçamentos
@@ -41,7 +41,6 @@ export default function Budgets() {
       const { data, error } = await supabase
         .from('budgets')
         .select('*')
-        .eq('entity_type', activeTab)
         .eq('month', currentMonth)
         .eq('year', currentYear);
 
@@ -55,7 +54,6 @@ export default function Budgets() {
         amount: item.amount,
         month: item.month,
         year: item.year,
-        entityType: item.entity_type as 'pf' | 'pj',
         createdAt: item.created_at,
         updatedAt: item.updated_at
       }));
@@ -71,7 +69,7 @@ export default function Budgets() {
 
   useEffect(() => {
     loadBudgets();
-  }, [activeTab]);
+  }, []);
 
   // Calcular gasto atual por categoria
   const getSpentAmount = (categoryId: string) => {
@@ -81,7 +79,6 @@ export default function Budgets() {
       .filter(t => 
         t.type === 'expense' && 
         t.category === categoryName &&
-        t.entityType === activeTab &&
         new Date(t.date).getMonth() + 1 === currentMonth &&
         new Date(t.date).getFullYear() === currentYear
       )
@@ -103,8 +100,7 @@ export default function Budgets() {
           category_id: newBudget.categoryId,
           amount: newBudget.amount,
           month: newBudget.month,
-          year: newBudget.year,
-          entity_type: activeTab
+          year: newBudget.year
         });
 
       if (error) throw error;
@@ -172,7 +168,7 @@ export default function Budgets() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Orçamentos {activeTab.toUpperCase()}</h1>
+          <h1 className="text-2xl font-bold">Orçamentos</h1>
           <p className="text-muted-foreground">
             Gerencie seus limites de gastos por categoria
           </p>

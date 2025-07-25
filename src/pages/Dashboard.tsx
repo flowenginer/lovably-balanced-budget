@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useFinancial } from '@/contexts/FinancialContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,14 +5,13 @@ import { Budget } from '@/types/financial';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileDashboard } from '@/components/Mobile/MobileDashboard';
 import { MobileTransactionForm } from '@/components/Mobile/MobileTransactionForm';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, CreditCard, Target, AlertCircle, Plus } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { TrendingUp, TrendingDown, DollarSign, Target, AlertCircle, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function Dashboard() {
@@ -21,56 +19,43 @@ export default function Dashboard() {
   const [showMobileForm, setShowMobileForm] = useState(false);
   const [initialTransactionType, setInitialTransactionType] = useState<'income' | 'expense'>('expense');
   const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   
   const { 
     transactions, 
     accounts, 
     categories,
     goals,
-    activeTab,
     addTransaction
   } = useFinancial();
 
-  // Filter data by activeTab
-  const filteredTransactions = transactions.filter(t => t.entityType === activeTab);
-  const filteredAccounts = accounts.filter(a => a.entityType === activeTab);
+  const selectedMonth = selectedDate.getMonth() + 1;
+  const selectedYear = selectedDate.getFullYear();
+  
+  // Filter data by selected month/year
+  const filteredTransactions = transactions.filter(t => {
+    const transactionDate = new Date(t.date);
+    return transactionDate.getMonth() + 1 === selectedMonth && 
+           transactionDate.getFullYear() === selectedYear;
+  });
   
   // Calculate totals
-  const totalBalance = filteredAccounts.reduce((sum, account) => sum + (account.balance || 0), 0);
-  const totalIncome = filteredTransactions
+  const totalBalance = accounts.reduce((sum, account) => sum + (account.balance || 0), 0);
+  const monthlyIncome = filteredTransactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = filteredTransactions
+  const monthlyExpenses = filteredTransactions
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  // Monthly data for current month
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  
-  const monthlyTransactions = filteredTransactions.filter(t => {
-    const transactionDate = new Date(t.date);
-    return transactionDate.getMonth() + 1 === currentMonth && 
-           transactionDate.getFullYear() === currentYear;
-  });
-
-  const monthlyIncome = monthlyTransactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
-    
-  const monthlyExpenses = monthlyTransactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  // Carregar orçamentos
+  // Carregar orçamentos para o mês selecionado
   const loadBudgets = async () => {
     try {
       const { data, error } = await supabase
         .from('budgets')
         .select('*')
-        .eq('entity_type', activeTab)
-        .eq('month', currentMonth)
-        .eq('year', currentYear);
+        .eq('month', selectedMonth)
+        .eq('year', selectedYear);
 
       if (error) throw error;
       
@@ -81,7 +66,6 @@ export default function Dashboard() {
         amount: item.amount,
         month: item.month,
         year: item.year,
-        entityType: item.entity_type as 'pf' | 'pj',
         createdAt: item.created_at,
         updatedAt: item.updated_at
       }));
@@ -94,12 +78,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadBudgets();
-  }, [activeTab]);
+  }, [selectedMonth, selectedYear]);
 
   // Calcular status dos orçamentos
   const budgetStatus = budgets.map(budget => {
     const categoryName = categories.find(c => c.id === budget.categoryId)?.name || '';
-    const spent = monthlyTransactions
+    const spent = filteredTransactions
       .filter(t => t.type === 'expense' && t.category === categoryName)
       .reduce((sum, t) => sum + t.amount, 0);
     
@@ -117,12 +101,12 @@ export default function Dashboard() {
   const budgetsInLimit = budgetStatus.filter(b => b.percentage < 100).length;
   const budgetsExceeded = budgetStatus.filter(b => b.percentage >= 100).length;
 
-  // Chart data
+  // Chart data for selected month
   const dailyData = eachDayOfInterval({
-    start: startOfMonth(new Date()),
-    end: endOfMonth(new Date())
+    start: startOfMonth(selectedDate),
+    end: endOfMonth(selectedDate)
   }).map(date => {
-    const dayTransactions = monthlyTransactions.filter(t => 
+    const dayTransactions = filteredTransactions.filter(t => 
       format(new Date(t.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
     );
     
@@ -135,9 +119,9 @@ export default function Dashboard() {
 
   // Category data for pie chart
   const categoryData = categories
-    .filter(c => c.entityType === activeTab && c.type === 'expense')
+    .filter(c => c.type === 'expense')
     .map(category => {
-      const amount = monthlyTransactions
+      const amount = filteredTransactions
         .filter(t => t.category === category.name && t.type === 'expense')
         .reduce((sum, t) => sum + t.amount, 0);
       
@@ -148,6 +132,18 @@ export default function Dashboard() {
       };
     })
     .filter(item => item.value > 0);
+
+  const handlePreviousMonth = () => {
+    setSelectedDate(prev => subMonths(prev, 1));
+  };
+
+  const handleNextMonth = () => {
+    setSelectedDate(prev => addMonths(prev, 1));
+  };
+
+  const handleCurrentMonth = () => {
+    setSelectedDate(new Date());
+  };
 
   if (isMobile) {
     return (
@@ -163,7 +159,6 @@ export default function Dashboard() {
             onSubmit={addTransaction}
             categories={categories}
             accounts={accounts}
-            activeTab={activeTab}
             initialType={initialTransactionType}
           />
         )}
@@ -178,7 +173,7 @@ export default function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
           <p className="text-muted-foreground">
-            Visão geral - {activeTab === 'pf' ? 'Pessoa Física' : 'Pessoa Jurídica'}
+            Visão geral financeira
           </p>
         </div>
         <Button onClick={() => {
@@ -189,6 +184,47 @@ export default function Dashboard() {
           Nova Transação
         </Button>
       </div>
+
+      {/* Month Selector */}
+      <Card className="glass-effect border-white/20">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePreviousMonth}
+                className="h-8 w-8 p-0"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <div className="text-center">
+                <h2 className="text-xl font-semibold">
+                  {format(selectedDate, 'MMMM yyyy', { locale: ptBR })}
+                </h2>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleNextMonth}
+                className="h-8 w-8 p-0"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleCurrentMonth}
+            >
+              Mês Atual
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -213,7 +249,7 @@ export default function Dashboard() {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{formatCurrency(monthlyIncome)}</div>
             <p className="text-xs text-muted-foreground">
-              Total de receitas em {format(new Date(), 'MMMM', { locale: ptBR })}
+              Total de receitas em {format(selectedDate, 'MMMM', { locale: ptBR })}
             </p>
           </CardContent>
         </Card>
@@ -226,7 +262,7 @@ export default function Dashboard() {
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{formatCurrency(monthlyExpenses)}</div>
             <p className="text-xs text-muted-foreground">
-              Total de despesas em {format(new Date(), 'MMMM', { locale: ptBR })}
+              Total de despesas em {format(selectedDate, 'MMMM', { locale: ptBR })}
             </p>
           </CardContent>
         </Card>
@@ -255,7 +291,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Fluxo de Caixa Diário</CardTitle>
             <CardDescription>
-              Receitas e despesas por dia em {format(new Date(), 'MMMM yyyy', { locale: ptBR })}
+              Receitas e despesas por dia em {format(selectedDate, 'MMMM yyyy', { locale: ptBR })}
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
@@ -279,7 +315,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Despesas por Categoria</CardTitle>
             <CardDescription>
-              Distribuição das despesas em {format(new Date(), 'MMMM', { locale: ptBR })}
+              Distribuição das despesas em {format(selectedDate, 'MMMM', { locale: ptBR })}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -311,12 +347,12 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Recent Transactions and Goals */}
+      {/* Recent Transactions and Budgets */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4 glass-effect border-white/20">
           <CardHeader>
-            <CardTitle>Transações Recentes</CardTitle>
-            <CardDescription>Últimas 5 transações registradas</CardDescription>
+            <CardTitle>Transações do Mês</CardTitle>
+            <CardDescription>Transações registradas em {format(selectedDate, 'MMMM yyyy', { locale: ptBR })}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -346,7 +382,7 @@ export default function Dashboard() {
               })}
               {filteredTransactions.length === 0 && (
                 <p className="text-center text-muted-foreground py-8">
-                  Nenhuma transação encontrada
+                  Nenhuma transação encontrada para este mês
                 </p>
               )}
             </div>
@@ -449,7 +485,6 @@ export default function Dashboard() {
           onSubmit={addTransaction}
           categories={categories}
           accounts={accounts}
-          activeTab={activeTab}
           initialType={initialTransactionType}
         />
       )}

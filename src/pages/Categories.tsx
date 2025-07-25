@@ -19,7 +19,7 @@ const PRESET_COLORS = [
 ];
 
 export default function Categories() {
-  const { categories, activeTab, addCategory, deleteCategory } = useFinancial();
+  const { categories, addCategory, deleteCategory } = useFinancial();
   const { toast } = useToast();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -29,9 +29,8 @@ export default function Categories() {
     color: '#EF4444',
   });
 
-  const entityCategories = categories.filter(c => c.entityType === activeTab);
-  const incomeCategories = entityCategories.filter(c => c.type === 'income');
-  const expenseCategories = entityCategories.filter(c => c.type === 'expense');
+  const incomeCategories = categories.filter(c => c.type === 'income');
+  const expenseCategories = categories.filter(c => c.type === 'expense');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +45,7 @@ export default function Categories() {
     }
 
     // Verificar se categoria já existe
-    const categoryExists = entityCategories.some(
+    const categoryExists = categories.some(
       c => c.name.toLowerCase() === formData.name.toLowerCase().trim() && c.type === selectedType
     );
 
@@ -63,8 +62,7 @@ export default function Categories() {
       await addCategory({
         name: formData.name.trim(),
         type: selectedType,
-        color: formData.color,
-        entityType: activeTab,
+        color: formData.color
       });
 
       toast({
@@ -138,7 +136,7 @@ export default function Categories() {
         <div>
           <h1 className="text-3xl font-bold">Categorias</h1>
           <p className="text-muted-foreground">
-            Gerencie suas categorias de {activeTab === 'pf' ? 'finanças pessoais' : 'finanças empresariais'}
+            Gerencie suas categorias de finanças
           </p>
         </div>
         

@@ -6,10 +6,8 @@ import { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 export default function Reports() {
-  const { transactions, categories, activeTab } = useFinancial();
+  const { transactions, categories } = useFinancial();
   const [selectedPeriod, setSelectedPeriod] = useState('currentMonth');
-
-  const entityTransactions = transactions.filter(t => t.entityType === activeTab);
 
   // Filter transactions by period
   const getFilteredTransactions = () => {
@@ -19,25 +17,25 @@ export default function Reports() {
 
     switch (selectedPeriod) {
       case 'currentMonth':
-        return entityTransactions.filter(t => {
+        return transactions.filter(t => {
           const date = new Date(t.date);
           return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
         });
       case 'lastMonth':
         const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
         const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-        return entityTransactions.filter(t => {
+        return transactions.filter(t => {
           const date = new Date(t.date);
           return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
         });
       case 'currentYear':
-        return entityTransactions.filter(t => {
+        return transactions.filter(t => {
           const date = new Date(t.date);
           return date.getFullYear() === currentYear;
         });
       case 'all':
       default:
-        return entityTransactions;
+        return transactions;
     }
   };
 
@@ -111,7 +109,7 @@ export default function Reports() {
         <div>
           <h1 className="text-3xl font-bold">Relatórios</h1>
           <p className="text-muted-foreground">
-            Análise detalhada das suas {activeTab === 'pf' ? 'finanças pessoais' : 'finanças empresariais'}
+            Análise detalhada das suas finanças
           </p>
         </div>
         

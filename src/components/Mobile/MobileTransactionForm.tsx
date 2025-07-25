@@ -15,7 +15,6 @@ interface MobileTransactionFormProps {
   onSubmit: (data: Omit<Transaction, 'id'>) => void;
   categories: Array<{ id: string; name: string; type: 'income' | 'expense'; color: string }>;
   accounts: Array<{ id: string; name: string }>;
-  activeTab: 'pf' | 'pj';
   initialType?: 'income' | 'expense';
 }
 
@@ -25,7 +24,6 @@ export function MobileTransactionForm({
   onSubmit,
   categories,
   accounts,
-  activeTab,
   initialType = 'expense'
 }: MobileTransactionFormProps) {
   const [formData, setFormData] = useState({
@@ -57,8 +55,7 @@ export function MobileTransactionForm({
 
     onSubmit({
       ...formData,
-      amount: parseFloat(formData.amount),
-      entityType: activeTab,
+      amount: parseFloat(formData.amount)
     });
 
     // Reset form

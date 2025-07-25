@@ -31,19 +31,15 @@ export function MobileDashboard({ onAddTransaction }: MobileDashboardProps) {
   const { 
     accounts, 
     categories, 
-    transactions, 
-    activeTab
+    transactions
   } = useFinancial();
   
   // Calculate totals
-  const filteredTransactions = transactions.filter(t => t.entityType === activeTab);
-  const filteredAccounts = accounts.filter(a => a.entityType === activeTab);
-  
-  const totalBalance = filteredAccounts.reduce((sum, account) => sum + (account.balance || 0), 0);
-  const totalIncome = filteredTransactions
+  const totalBalance = accounts.reduce((sum, account) => sum + (account.balance || 0), 0);
+  const totalIncome = transactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = filteredTransactions
+  const totalExpenses = transactions
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
   
@@ -52,11 +48,11 @@ export function MobileDashboard({ onAddTransaction }: MobileDashboardProps) {
   const currentMonth = format(new Date(), 'MMMM', { locale: ptBR });
   const capitalizedMonth = currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1);
 
-  const recentTransactions = filteredTransactions
+  const recentTransactions = transactions
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
 
-  const filteredAccountsForDisplay = filteredAccounts;
+  const filteredAccountsForDisplay = accounts;
 
   const getAccountIcon = (type: string) => {
     switch (type) {

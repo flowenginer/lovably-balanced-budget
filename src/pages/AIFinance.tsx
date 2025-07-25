@@ -18,14 +18,13 @@ import {
 } from 'lucide-react';
 
 export default function AIFinance() {
-  const { transactions, activeTab, getBalance, getMonthlyData } = useFinancial();
+  const { transactions, getBalance, getMonthlyData } = useFinancial();
   const [question, setQuestion] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const entityTransactions = transactions.filter(t => t.entityType === activeTab);
-  const balance = getBalance(activeTab);
-  const monthlyData = getMonthlyData(activeTab);
+  const balance = getBalance();
+  const monthlyData = getMonthlyData();
   const savings = monthlyData.income - monthlyData.expenses;
   const savingsRate = monthlyData.income > 0 ? (savings / monthlyData.income) * 100 : 0;
 
@@ -61,7 +60,7 @@ export default function AIFinance() {
     }
 
     // Spending pattern analysis
-    const expensesByCategory = entityTransactions
+    const expensesByCategory = transactions
       .filter(t => t.type === 'expense')
       .reduce((acc, t) => {
         acc[t.category] = (acc[t.category] || 0) + t.amount;
@@ -69,10 +68,10 @@ export default function AIFinance() {
       }, {} as Record<string, number>);
 
     const topExpenseCategory = Object.entries(expensesByCategory)
-      .sort(([,a], [,b]) => b - a)[0];
+      .sort(([,a], [,b]) => (b as number) - (a as number))[0];
 
     if (topExpenseCategory && monthlyData.expenses > 0) {
-      const categoryPercentage = (topExpenseCategory[1] / monthlyData.expenses) * 100;
+      const categoryPercentage = ((topExpenseCategory[1] as number) / monthlyData.expenses) * 100;
       if (categoryPercentage > 40) {
         insights.push({
           type: 'warning',
@@ -111,44 +110,24 @@ export default function AIFinance() {
 
   const getFinancialTips = () => {
     const tips = [];
-
-    if (activeTab === 'pf') {
-      tips.push(
-        {
-          title: 'Regra 50/30/20',
-          description: 'Destine 50% para necessidades, 30% para desejos e 20% para poupança e investimentos.',
-          category: 'Planejamento'
-        },
-        {
-          title: 'Automatize suas Economias',
-          description: 'Configure transferências automáticas para sua poupança logo após receber o salário.',
-          category: 'Automatização'
-        },
-        {
-          title: 'Controle de Gastos Variáveis',
-          description: 'Monitore gastos com entretenimento e alimentação fora de casa - são onde mais perdemos controle.',
-          category: 'Controle'
-        }
-      );
-    } else {
-      tips.push(
-        {
-          title: 'Fluxo de Caixa Empresarial',
-          description: 'Mantenha sempre um controle rigoroso do fluxo de caixa para evitar surpresas.',
-          category: 'Gestão'
-        },
-        {
-          title: 'Reserva Empresarial',
-          description: 'Mantenha uma reserva equivalente a 6 meses de despesas operacionais.',
-          category: 'Segurança'
-        },
-        {
-          title: 'Análise de Margem',
-          description: 'Analise regularmente a margem de lucro por produto/serviço para otimizar a rentabilidade.',
-          category: 'Rentabilidade'
-        }
-      );
-    }
+    
+    tips.push(
+      {
+        title: 'Regra 50/30/20',
+        description: 'Destine 50% para necessidades, 30% para desejos e 20% para poupança e investimentos.',
+        category: 'Planejamento'
+      },
+      {
+        title: 'Automatize suas Economias',
+        description: 'Configure transferências automáticas para sua poupança logo após receber o salário.',
+        category: 'Automatização'
+      },
+      {
+        title: 'Controle de Gastos Variáveis',
+        description: 'Monitore gastos com entretenimento e alimentação fora de casa - são onde mais perdemos controle.',
+        category: 'Controle'
+      }
+    );
 
     return tips;
   };
@@ -205,7 +184,7 @@ export default function AIFinance() {
       <div>
         <h1 className="text-3xl font-bold">IA Financeira</h1>
         <p className="text-muted-foreground">
-          Insights inteligentes para suas {activeTab === 'pf' ? 'finanças pessoais' : 'finanças empresariais'}
+          Insights inteligentes para suas finanças
         </p>
       </div>
 
@@ -268,7 +247,7 @@ export default function AIFinance() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">
-                  {entityTransactions.length}
+                  {transactions.length}
                 </div>
                 <div className="text-sm text-muted-foreground">Transações</div>
               </div>

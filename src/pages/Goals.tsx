@@ -11,7 +11,6 @@ import { Target, Plus, Calendar, TrendingUp, CheckCircle, Edit2, Trash2 } from '
 import { useFinancial } from '@/contexts/FinancialContext';
 
 export default function Goals() {
-  const { activeTab } = useFinancial();
   const [goals, setGoals] = useState([
     {
       id: '1',
@@ -41,7 +40,7 @@ export default function Goals() {
     category: 'savings'
   });
 
-  const filteredGoals = goals.filter(g => g.entityType === activeTab);
+  const filteredGoals = goals;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +51,7 @@ export default function Goals() {
       targetAmount: parseFloat(formData.targetAmount),
       currentAmount: 0,
       deadline: formData.deadline,
-      entityType: activeTab,
+      entityType: 'pf' as 'pf' | 'pj',
       category: formData.category
     };
 
@@ -133,7 +132,7 @@ export default function Goals() {
         <div>
           <h1 className="text-3xl font-bold">Metas Financeiras</h1>
           <p className="text-muted-foreground">
-            Defina e acompanhe suas metas {activeTab === 'pf' ? 'pessoais' : 'empresariais'}
+            Defina e acompanhe suas metas financeiras
           </p>
         </div>
         
@@ -196,7 +195,7 @@ export default function Goals() {
                   <option value="emergency">Emergência</option>
                   <option value="travel">Viagem</option>
                   <option value="investment">Investimento</option>
-                  {activeTab === 'pj' && <option value="business">Negócios</option>}
+                  <option value="business">Negócios</option>
                   <option value="other">Outros</option>
                 </select>
               </div>

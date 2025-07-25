@@ -23,7 +23,7 @@ import logoLight from '@/assets/logo-light.png';
 
 export function Header() {
   const { user, logout } = useAuth();
-  const { activeTab, setActiveTab, userProfile } = useFinancial();
+  const { userProfile } = useFinancial();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -50,38 +50,6 @@ export function Header() {
               />
             </div>
           )}
-          
-          <Tabs 
-            value={activeTab} 
-            onValueChange={(value) => setActiveTab(value as 'pf' | 'pj')}
-            className={isMobile ? "block" : "hidden sm:block"}
-          >
-            <TabsList className={cn(
-              "glass-effect p-1",
-              isMobile ? "h-10" : "h-12"
-            )}>
-              <TabsTrigger 
-                value="pf" 
-                className={cn(
-                  "flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:text-primary transition-all duration-200",
-                  isMobile ? "px-3 py-1.5 text-sm" : "px-4 py-2"
-                )}
-              >
-                <User className="h-4 w-4" />
-                {!isMobile ? "Pessoa Física" : "PF"}
-              </TabsTrigger>
-              <TabsTrigger 
-                value="pj" 
-                className={cn(
-                  "flex items-center gap-2 data-[state=active]:bg-white/20 data-[state=active]:text-primary transition-all duration-200",
-                  isMobile ? "px-3 py-1.5 text-sm" : "px-4 py-2"
-                )}
-              >
-                <Settings className="h-4 w-4" />
-                {!isMobile ? "Pessoa Jurídica" : "PJ"}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
 
         <div className="flex items-center gap-2">

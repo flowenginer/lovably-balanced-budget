@@ -22,7 +22,6 @@ export default function Transactions() {
     transactions, 
     categories, 
     accounts, 
-    activeTab, 
     addTransaction, 
     deleteTransaction 
   } = useFinancial();
@@ -49,17 +48,16 @@ export default function Transactions() {
   });
 
   const filteredTransactions = transactions.filter(t => {
-    const matchesTab = t.entityType === activeTab;
     const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          t.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
     const matchesType = selectedType === 'all' || t.type === selectedType;
     
-    return matchesTab && matchesSearch && matchesCategory && matchesType;
+    return matchesSearch && matchesCategory && matchesType;
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const entityCategories = categories.filter(c => c.entityType === activeTab);
-  const entityAccounts = accounts.filter(a => a.entityType === activeTab);
+  const entityCategories = categories;
+  const entityAccounts = accounts;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,8 +73,7 @@ export default function Transactions() {
 
     addTransaction({
       ...formData,
-      amount: parseFloat(formData.amount),
-      entityType: activeTab,
+      amount: parseFloat(formData.amount)
     });
 
     toast({
@@ -132,7 +129,7 @@ export default function Transactions() {
         <div className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border p-4 shadow-sm">
           <h1 className="text-xl font-bold mb-1 text-card-foreground">Transações</h1>
           <p className="text-sm text-muted-foreground">
-            {activeTab === 'pf' ? 'Finanças pessoais' : 'Finanças empresariais'}
+            Gerencie suas finanças
           </p>
         </div>
 
@@ -221,7 +218,6 @@ export default function Transactions() {
           onSubmit={handleMobileSubmit}
           categories={categories}
           accounts={accounts}
-          activeTab={activeTab}
           initialType={initialTransactionType}
         />
       </div>
@@ -235,7 +231,7 @@ export default function Transactions() {
         <div>
           <h1 className="text-3xl font-bold">Transações</h1>
           <p className="text-muted-foreground">
-            Gerencie suas {activeTab === 'pf' ? 'finanças pessoais' : 'finanças empresariais'}
+            Gerencie suas finanças
           </p>
         </div>
         
