@@ -8,7 +8,6 @@ interface FinancialContextType {
   categories: Category[];
   accounts: Account[];
   goals: FinancialGoal[];
-  activeTab: 'pf' | 'pj';
   userProfile: { name: string; email: string } | null;
   addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
   updateTransaction: (id: string, transaction: Partial<Transaction>) => Promise<void>;
@@ -17,9 +16,8 @@ interface FinancialContextType {
   deleteCategory: (id: string) => Promise<void>;
   addAccount: (account: Omit<Account, 'id'>) => Promise<void>;
   deleteAccount: (id: string) => Promise<void>;
-  setActiveTab: (tab: 'pf' | 'pj') => void;
-  getBalance: (entityType?: 'pf' | 'pj') => number;
-  getMonthlyData: (entityType?: 'pf' | 'pj') => { income: number; expenses: number };
+  getBalance: () => number;
+  getMonthlyData: () => { income: number; expenses: number };
   isLoading: boolean;
   refreshData: () => Promise<void>;
 }
@@ -41,7 +39,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [goals, setGoals] = useState<FinancialGoal[]>([]);
   const [userProfile, setUserProfile] = useState<{ name: string; email: string } | null>(null);
-  const [activeTab, setActiveTab] = useState<'pf' | 'pj'>('pf');
   const [isLoading, setIsLoading] = useState(false);
 
   // Load data when user is authenticated
@@ -84,20 +81,13 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         .order('name');
       
       if (categoriesData) {
-        const uniqueCategories = new Map();
-        categoriesData.forEach(c => {
-          const key = `${c.name}-${c.type}-${c.entity_type}`;
-          if (!uniqueCategories.has(key)) {
-            uniqueCategories.set(key, {
-              id: c.id,
-              name: c.name,
-              type: c.type as 'income' | 'expense',
-              entityType: c.entity_type as 'pf' | 'pj',
-              color: c.color
-            });
-          }
-        });
-        setCategories(Array.from(uniqueCategories.values()));
+        const mappedCategories = categoriesData.map(c => ({
+          id: c.id,
+          name: c.name,
+          type: c.type as 'income' | 'expense',
+          color: c.color
+        }));
+        setCategories(mappedCategories);
       }
 
       // Load accounts - remove duplicates by using a Map with unique key
@@ -107,20 +97,13 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         .order('name');
       
       if (accountsData) {
-        const uniqueAccounts = new Map();
-        accountsData.forEach(a => {
-          const key = `${a.name}-${a.type}-${a.entity_type}`;
-          if (!uniqueAccounts.has(key)) {
-            uniqueAccounts.set(key, {
-              id: a.id,
-              name: a.name,
-              type: a.type as 'checking' | 'savings' | 'cash' | 'investment' | 'credit',
-              balance: Number(a.balance || 0),
-              entityType: a.entity_type as 'pf' | 'pj'
-            });
-          }
-        });
-        setAccounts(Array.from(uniqueAccounts.values()));
+        const mappedAccounts = accountsData.map(a => ({
+          id: a.id,
+          name: a.name,
+          type: a.type as 'checking' | 'savings' | 'cash' | 'investment' | 'credit',
+          balance: Number(a.balance || 0)
+        }));
+        setAccounts(mappedAccounts);
       }
 
       // Load transactions
@@ -145,7 +128,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           isRecurring: t.is_recurring || false,
           observations: t.observations || '',
           account: t.accounts?.name || '',
-          entityType: t.entity_type as 'pf' | 'pj',
           attachment: t.attachment_url || '',
           pixData: t.pix_key ? {
             key: t.pix_key,
@@ -173,8 +155,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           title: g.title,
           targetAmount: Number(g.target_amount),
           currentAmount: Number(g.current_amount),
-          deadline: g.deadline,
-          entityType: g.entity_type as 'pf' | 'pj'
+          deadline: g.deadline
         }));
         setGoals(formattedGoals);
       }
@@ -253,7 +234,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             payment_method: transaction.payment_method,
             is_recurring: true,
             observations: transaction.observations,
-            entity_type: transaction.entity_type,
+            
             attachment_url: transaction.attachment_url,
             pix_key: transaction.pix_key,
             pix_key_type: transaction.pix_key_type,
@@ -291,7 +272,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           user_id: user.id,
           name: category.name,
           type: category.type,
-          entity_type: category.entityType,
           color: category.color
         });
 
@@ -332,8 +312,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           user_id: user.id,
           name: account.name,
           type: account.type,
-          balance: account.balance,
-          entity_type: account.entityType
+          balance: account.balance
         });
 
       if (error) throw error;
@@ -368,7 +347,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     try {
       // Check if category exists, if not create it
-      let category = categories.find(c => c.name === transaction.category && c.entityType === transaction.entityType && c.type === transaction.type);
+      let category = categories.find(c => c.name === transaction.category && c.type === transaction.type);
       
       if (!category) {
         // Create new category
@@ -378,7 +357,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             user_id: user.id,
             name: transaction.category,
             type: transaction.type,
-            entity_type: transaction.entityType,
             color: transaction.type === 'income' ? '#10B981' : '#EF4444'
           })
           .select()
@@ -390,7 +368,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           id: newCategory.id,
           name: newCategory.name,
           type: newCategory.type as 'income' | 'expense',
-          entityType: newCategory.entity_type as 'pf' | 'pj',
           color: newCategory.color
         };
         
@@ -398,7 +375,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setCategories(prev => [...prev, category!]);
       }
       
-      const account = accounts.find(a => a.name === transaction.account && a.entityType === transaction.entityType);
+      const account = accounts.find(a => a.name === transaction.account);
 
       if (!account) {
         throw new Error('Conta não encontrada');
@@ -415,7 +392,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         payment_method: transaction.paymentMethod,
         is_recurring: transaction.isRecurring,
         observations: transaction.observations,
-        entity_type: transaction.entityType,
         attachment_url: transaction.attachment,
         pix_key: transaction.pixData?.key,
         pix_key_type: transaction.pixData?.keyType,
@@ -543,24 +519,20 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const getBalance = (entityType?: 'pf' | 'pj') => {
-    return transactions
-      .filter(t => !entityType || t.entityType === entityType)
-      .reduce((acc, t) => {
-        return t.type === 'income' ? acc + t.amount : acc - t.amount;
-      }, 0);
+  const getBalance = () => {
+    return transactions.reduce((acc, t) => {
+      return t.type === 'income' ? acc + t.amount : acc - t.amount;
+    }, 0);
   };
 
-  const getMonthlyData = (entityType?: 'pf' | 'pj') => {
+  const getMonthlyData = () => {
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     
     const monthlyTransactions = transactions.filter(t => {
       const transactionDate = new Date(t.date);
-      const isCurrentMonth = transactionDate.getMonth() === currentMonth && 
-                            transactionDate.getFullYear() === currentYear;
-      const isCorrectEntity = !entityType || t.entityType === entityType;
-      return isCurrentMonth && isCorrectEntity;
+      return transactionDate.getMonth() === currentMonth && 
+             transactionDate.getFullYear() === currentYear;
     });
 
     const income = monthlyTransactions
@@ -580,7 +552,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       categories,
       accounts,
       goals,
-      activeTab,
       userProfile,
       addTransaction,
       updateTransaction,
@@ -589,7 +560,6 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       deleteCategory,
       addAccount,
       deleteAccount,
-      setActiveTab,
       getBalance,
       getMonthlyData,
       isLoading,

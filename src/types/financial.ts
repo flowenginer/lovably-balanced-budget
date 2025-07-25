@@ -10,7 +10,6 @@ export interface Transaction {
   isRecurring: boolean;
   observations?: string;
   account: string;
-  entityType: 'pf' | 'pj';
   attachment?: string;
   pixData?: PixData;
   bankData?: BankData;
@@ -32,7 +31,6 @@ export interface Category {
   id: string;
   name: string;
   type: 'income' | 'expense';
-  entityType: 'pf' | 'pj';
   color: string;
 }
 
@@ -41,7 +39,6 @@ export interface Account {
   name: string;
   type: 'checking' | 'savings' | 'cash' | 'investment' | 'credit';
   balance: number;
-  entityType: 'pf' | 'pj';
 }
 
 export interface User {
@@ -59,7 +56,6 @@ export interface FinancialGoal {
   targetAmount: number;
   currentAmount: number;
   deadline: string;
-  entityType: 'pf' | 'pj';
 }
 
 export interface Budget {
@@ -69,7 +65,6 @@ export interface Budget {
   amount: number;
   month: number;
   year: number;
-  entityType: 'pf' | 'pj';
   createdAt: string;
   updatedAt: string;
 }

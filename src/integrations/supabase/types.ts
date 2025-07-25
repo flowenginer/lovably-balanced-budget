@@ -18,7 +18,6 @@ export type Database = {
         Row: {
           balance: number | null
           created_at: string | null
-          entity_type: string
           id: string
           name: string
           type: string
@@ -28,7 +27,6 @@ export type Database = {
         Insert: {
           balance?: number | null
           created_at?: string | null
-          entity_type: string
           id?: string
           name: string
           type: string
@@ -38,7 +36,6 @@ export type Database = {
         Update: {
           balance?: number | null
           created_at?: string | null
-          entity_type?: string
           id?: string
           name?: string
           type?: string
@@ -52,7 +49,6 @@ export type Database = {
           amount: number
           category_id: string
           created_at: string
-          entity_type: string
           id: string
           month: number
           updated_at: string
@@ -63,7 +59,6 @@ export type Database = {
           amount: number
           category_id: string
           created_at?: string
-          entity_type: string
           id?: string
           month: number
           updated_at?: string
@@ -74,7 +69,6 @@ export type Database = {
           amount?: number
           category_id?: string
           created_at?: string
-          entity_type?: string
           id?: string
           month?: number
           updated_at?: string
@@ -87,7 +81,6 @@ export type Database = {
         Row: {
           color: string
           created_at: string | null
-          entity_type: string
           id: string
           name: string
           type: string
@@ -97,7 +90,6 @@ export type Database = {
         Insert: {
           color?: string
           created_at?: string | null
-          entity_type: string
           id?: string
           name: string
           type: string
@@ -107,7 +99,6 @@ export type Database = {
         Update: {
           color?: string
           created_at?: string | null
-          entity_type?: string
           id?: string
           name?: string
           type?: string
@@ -121,7 +112,6 @@ export type Database = {
           created_at: string | null
           current_amount: number | null
           deadline: string
-          entity_type: string
           id: string
           target_amount: number
           title: string
@@ -132,7 +122,6 @@ export type Database = {
           created_at?: string | null
           current_amount?: number | null
           deadline: string
-          entity_type: string
           id?: string
           target_amount: number
           title: string
@@ -143,7 +132,6 @@ export type Database = {
           created_at?: string | null
           current_amount?: number | null
           deadline?: string
-          entity_type?: string
           id?: string
           target_amount?: number
           title?: string
@@ -195,7 +183,6 @@ export type Database = {
           created_at: string | null
           date: string
           description: string
-          entity_type: string
           id: string
           is_recurring: boolean | null
           observations: string | null
@@ -218,7 +205,6 @@ export type Database = {
           created_at?: string | null
           date: string
           description: string
-          entity_type: string
           id?: string
           is_recurring?: boolean | null
           observations?: string | null
@@ -241,7 +227,6 @@ export type Database = {
           created_at?: string | null
           date?: string
           description?: string
-          entity_type?: string
           id?: string
           is_recurring?: boolean | null
           observations?: string | null
