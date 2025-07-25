@@ -474,43 +474,14 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!user) return;
 
     try {
-      // Get the transaction to check if it's recurring
-      const { data: transactionToDelete } = await supabase
+      // Simply delete the specific transaction
+      const { error } = await supabase
         .from('transactions')
-        .select('*')
+        .delete()
         .eq('id', id)
-        .single();
+        .eq('user_id', user.id);
 
-      if (!transactionToDelete) {
-        throw new Error('Transação não encontrada');
-      }
-
-      // If it's a recurring transaction, delete all future instances of the same pattern
-      if (transactionToDelete.is_recurring) {
-        const today = new Date();
-        
-        // Delete this transaction and all future instances with the same pattern
-        const { error } = await supabase
-          .from('transactions')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('category_id', transactionToDelete.category_id)
-          .eq('account_id', transactionToDelete.account_id)
-          .eq('description', transactionToDelete.description)
-          .eq('amount', transactionToDelete.amount)
-          .eq('is_recurring', true)
-          .gte('date', today.toISOString().split('T')[0]);
-
-        if (error) throw error;
-      } else {
-        // Single transaction delete
-        const { error } = await supabase
-          .from('transactions')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-      }
+      if (error) throw error;
       
       await refreshData();
     } catch (error) {

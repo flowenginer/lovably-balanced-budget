@@ -172,7 +172,9 @@ export default function Transactions() {
               </SelectTrigger>
               <SelectContent className="bg-popover border-border">
                 <SelectItem value="all">Todas</SelectItem>
-                {entityCategories.map((category) => (
+                {entityCategories.filter((category, index, self) => 
+                  self.findIndex(c => c.name === category.name) === index
+                ).map((category) => (
                   <SelectItem key={category.id} value={category.name}>
                     {category.name}
                   </SelectItem>
@@ -316,7 +318,9 @@ export default function Transactions() {
                       <SelectValue placeholder="Selecione a conta" />
                     </SelectTrigger>
                     <SelectContent>
-                      {entityAccounts.map((account) => (
+                      {entityAccounts.filter((account, index, self) => 
+                        self.findIndex(a => a.name === account.name) === index
+                      ).map((account) => (
                         <SelectItem key={`${account.id}-${account.name}`} value={account.name}>
                           {account.name}
                         </SelectItem>
@@ -410,7 +414,9 @@ export default function Transactions() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
-                {entityCategories.map((category) => (
+                {entityCategories.filter((category, index, self) => 
+                  self.findIndex(c => c.name === category.name) === index
+                ).map((category) => (
                   <SelectItem key={`filter-${category.id}-${category.name}`} value={category.name}>
                     {category.name}
                   </SelectItem>

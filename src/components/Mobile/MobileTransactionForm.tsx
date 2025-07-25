@@ -126,7 +126,9 @@ export function MobileTransactionForm({
               list="categories-list"
             />
             <datalist id="categories-list">
-              {typeCategories.map((category) => (
+              {typeCategories.filter((category, index, self) => 
+                self.findIndex(c => c.name === category.name) === index
+              ).map((category) => (
                 <option key={category.id} value={category.name} />
               ))}
             </datalist>
@@ -153,7 +155,9 @@ export function MobileTransactionForm({
                 <SelectValue placeholder="Conta" />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border">
-                {entityAccounts.map((account) => (
+                {entityAccounts.filter((account, index, self) => 
+                  self.findIndex(a => a.name === account.name) === index
+                ).map((account) => (
                   <SelectItem key={account.id} value={account.name}>
                     {account.name}
                   </SelectItem>
