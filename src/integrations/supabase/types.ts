@@ -17,30 +17,69 @@ export type Database = {
       accounts: {
         Row: {
           balance: number | null
+          bank_icon: string | null
+          bank_name: string | null
           created_at: string | null
           id: string
+          initial_balance: number | null
+          is_bank_account: boolean | null
           name: string
+          show_in_dashboard: boolean | null
           type: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
           balance?: number | null
+          bank_icon?: string | null
+          bank_name?: string | null
           created_at?: string | null
           id?: string
+          initial_balance?: number | null
+          is_bank_account?: boolean | null
           name: string
+          show_in_dashboard?: boolean | null
           type: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
           balance?: number | null
+          bank_icon?: string | null
+          bank_name?: string | null
           created_at?: string | null
           id?: string
+          initial_balance?: number | null
+          is_bank_account?: boolean | null
           name?: string
+          show_in_dashboard?: boolean | null
           type?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      banks: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          icon_url: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          icon_url?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          icon_url?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
