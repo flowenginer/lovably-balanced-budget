@@ -21,6 +21,7 @@ import {
   FileText,
   Sparkles,
   Target,
+  Building2,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import logoDark from '@/assets/logo-dark.png';
@@ -41,6 +42,11 @@ const navigationItems = [
     title: 'Orçamentos',
     url: '/budgets',
     icon: Target,
+  },
+  {
+    title: 'Contas',
+    url: '/accounts',
+    icon: Building2,
   },
   {
     title: 'Relatórios',

@@ -39,6 +39,18 @@ export interface Account {
   name: string;
   type: 'checking' | 'savings' | 'cash' | 'investment' | 'credit';
   balance: number;
+  bankName?: string;
+  bankIcon?: string;
+  showInDashboard?: boolean;
+  initialBalance?: number;
+  isBankAccount?: boolean;
+}
+
+export interface Bank {
+  id: string;
+  name: string;
+  iconUrl?: string;
+  color: string;
 }
 
 export interface User {

@@ -101,7 +101,12 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           id: a.id,
           name: a.name,
           type: a.type as 'checking' | 'savings' | 'cash' | 'investment' | 'credit',
-          balance: Number(a.balance || 0)
+          balance: Number(a.balance || 0),
+          bankName: a.bank_name || undefined,
+          bankIcon: a.bank_icon || undefined,
+          showInDashboard: a.show_in_dashboard ?? true,
+          initialBalance: Number(a.initial_balance || 0),
+          isBankAccount: a.is_bank_account ?? false
         }));
         setAccounts(mappedAccounts);
       }

@@ -18,6 +18,7 @@ import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
 import Categories from "./pages/Categories";
 import Budgets from "./pages/Budgets";
+import Accounts from "./pages/Accounts";
 import InstallApp from "./pages/InstallApp";
 import NotFound from "./pages/NotFound";
 
@@ -92,6 +93,7 @@ function AppRoutes() {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/budgets" element={<Budgets />} />
+        <Route path="/accounts" element={<Accounts />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/ai" element={<AIFinance />} />
         <Route path="/goals" element={<Goals />} />
