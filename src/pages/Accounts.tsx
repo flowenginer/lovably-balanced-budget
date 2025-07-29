@@ -210,18 +210,21 @@ export default function Accounts() {
                       <div className="flex items-center gap-3">
                         {bank.iconUrl ? (
                           <img 
-                            src={bank.iconUrl} 
+                            src={bank.iconUrl.startsWith('/src/assets/') ? bank.iconUrl.replace('/src/', '/') : bank.iconUrl} 
                             alt={bank.name}
                             className="w-8 h-8 rounded-full object-contain"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
                           />
-                        ) : (
-                          <div 
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold"
-                            style={{ backgroundColor: bank.color }}
-                          >
-                            {bank.name.charAt(0)}
-                          </div>
-                        )}
+                        ) : null}
+                        <div 
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${bank.iconUrl ? 'hidden' : ''}`}
+                          style={{ backgroundColor: bank.color }}
+                        >
+                          {bank.name.charAt(0)}
+                        </div>
                         <span className="font-medium">{bank.name}</span>
                       </div>
                       <div className="w-4 h-4 text-muted-foreground">→</div>
@@ -232,20 +235,23 @@ export default function Accounts() {
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
-                  {selectedBank.iconUrl ? (
-                    <img 
-                      src={selectedBank.iconUrl} 
-                      alt={selectedBank.name}
-                      className="w-10 h-10 rounded-full object-contain"
-                    />
-                  ) : (
+                    {selectedBank.iconUrl ? (
+                      <img 
+                        src={selectedBank.iconUrl.startsWith('/src/assets/') ? selectedBank.iconUrl.replace('/src/', '/') : selectedBank.iconUrl} 
+                        alt={selectedBank.name}
+                        className="w-10 h-10 rounded-full object-contain"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
                     <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${selectedBank.iconUrl ? 'hidden' : ''}`}
                       style={{ backgroundColor: selectedBank.color }}
                     >
                       {selectedBank.name.charAt(0)}
                     </div>
-                  )}
                   <span className="font-medium">{selectedBank.name}</span>
                   <Button 
                     variant="ghost" 
@@ -380,20 +386,27 @@ export default function Accounts() {
                     <div className="flex items-center gap-4">
                       {account.bankName && banks.find(b => b.name === account.bankName)?.iconUrl ? (
                         <img 
-                          src={banks.find(b => b.name === account.bankName)?.iconUrl} 
+                          src={banks.find(b => b.name === account.bankName)?.iconUrl?.startsWith('/src/assets/') 
+                            ? banks.find(b => b.name === account.bankName)?.iconUrl?.replace('/src/', '/') 
+                            : banks.find(b => b.name === account.bankName)?.iconUrl} 
                           alt={account.bankName}
                           className="w-12 h-12 rounded-full object-contain"
-                        />
-                      ) : (
-                        <div 
-                          className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
-                          style={{ 
-                            backgroundColor: banks.find(b => b.name === account.bankName)?.color || '#3B82F6' 
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
                           }}
-                        >
-                          {(account.bankName || account.name).charAt(0)}
-                        </div>
-                      )}
+                        />
+                      ) : null}
+                      <div 
+                        className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${
+                          account.bankName && banks.find(b => b.name === account.bankName)?.iconUrl ? 'hidden' : ''
+                        }`}
+                        style={{ 
+                          backgroundColor: banks.find(b => b.name === account.bankName)?.color || 'hsl(var(--primary))' 
+                        }}
+                      >
+                        {(account.bankName || account.name).charAt(0)}
+                      </div>
                     <div>
                       <h3 className="font-semibold">{account.name}</h3>
                       <p className="text-sm text-muted-foreground">

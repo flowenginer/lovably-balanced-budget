@@ -306,6 +306,10 @@ export type Database = {
         Args: { user_id: string }
         Returns: undefined
       }
+      update_account_balances: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
