@@ -59,14 +59,14 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
               size="sm"
               onClick={() => navigate(item.path)}
               className={cn(
-                "flex flex-col items-center gap-1 h-auto py-2 px-2 min-w-0",
+                "flex flex-col items-center gap-0.5 h-auto py-2 px-1 min-w-0",
                 isActive(item.path) 
                   ? "text-primary" 
                   : "text-muted-foreground"
               )}
             >
               <item.icon className="h-5 w-5 flex-shrink-0" />
-              <span className="text-xs font-medium truncate max-w-[60px]">{item.label}</span>
+              <span className="text-[10px] font-medium leading-tight text-center max-w-[70px]">{item.label}</span>
             </Button>
           ))}
         </div>
@@ -103,14 +103,14 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
             size="sm"
             onClick={() => navigate('/budgets')}
             className={cn(
-              "flex flex-col items-center gap-1 h-auto py-2 px-2 min-w-0",
+              "flex flex-col items-center gap-0.5 h-auto py-2 px-1 min-w-0",
               isActive('/budgets') 
                 ? "text-primary" 
                 : "text-muted-foreground"
             )}
           >
             <Target className="h-5 w-5 flex-shrink-0" />
-            <span className="text-xs font-medium truncate max-w-[60px]">Planejamento</span>
+            <span className="text-[10px] font-medium leading-tight text-center max-w-[70px]">Planejamento</span>
           </Button>
 
           {/* More dropdown */}
@@ -120,14 +120,14 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "flex flex-col items-center gap-1 h-auto py-2 px-2 min-w-0",
+                  "flex flex-col items-center gap-0.5 h-auto py-2 px-1 min-w-0",
                   isMoreMenuActive 
                     ? "text-primary" 
                     : "text-muted-foreground"
                 )}
               >
                 <MoreHorizontal className="h-5 w-5 flex-shrink-0" />
-                <span className="text-xs font-medium truncate max-w-[60px]">Mais</span>
+                <span className="text-[10px] font-medium leading-tight text-center max-w-[70px]">Mais</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="mb-2 bg-background border-border z-[100]" align="center">
