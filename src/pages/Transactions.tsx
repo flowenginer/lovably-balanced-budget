@@ -207,7 +207,7 @@ export default function Transactions() {
     return (
       <div className="bg-background min-h-screen mobile-safe-area">
         {/* Header with month navigation */}
-        <div className="bg-primary text-primary-foreground px-4 pt-4 pb-6 rounded-b-3xl mx-2 mt-2">
+        <div className="bg-primary text-primary-foreground px-4 pt-4 pb-6 rounded-b-3xl mx-4 mt-2">{/* Ajustado margin lateral */}
           <div className="flex items-center justify-center mb-4">
             <Button
               variant="ghost" 
@@ -249,7 +249,7 @@ export default function Transactions() {
                 <Lock className="h-4 w-4 opacity-80" />
                 <span className="text-xs text-white opacity-90">Saldo atual</span>
               </div>
-              <p className="text-sm font-bold text-white break-words">
+              <p className="text-sm font-bold text-white break-words leading-tight">
                 {formatCurrency(totalBalance)}
               </p>
             </div>
@@ -259,7 +259,7 @@ export default function Transactions() {
                 <Wallet className="h-4 w-4 opacity-80" />
                 <span className="text-xs text-white opacity-90">Balanço mensal</span>
               </div>
-              <p className="text-sm font-bold text-white break-words">
+              <p className="text-sm font-bold text-white break-words leading-tight">
                 {formatCurrency(monthlyBalance)}
               </p>
             </div>
@@ -267,7 +267,7 @@ export default function Transactions() {
         </div>
 
         {/* Transactions grouped by date */}
-        <div className="px-4 py-6 space-y-6 pb-32">
+        <div className="px-4 py-6 space-y-6 pb-32 pr-4">{/* Adicionado pr-4 para espaçamento direito correto */}
           {Object.entries(groupedTransactions).length > 0 ? (
             Object.entries(groupedTransactions).map(([dateKey, transactionsForDate]) => (
               <div key={dateKey}>
@@ -307,19 +307,6 @@ export default function Transactions() {
           )}
         </div>
 
-        {/* Floating Action Button */}
-        <div className="fixed bottom-24 right-6">
-          <Button
-            size="lg"
-            onClick={() => {
-              setInitialTransactionType('expense');
-              setIsDialogOpen(true);
-            }}
-            className="rounded-full w-16 h-16 shadow-xl bg-primary hover:bg-primary/90"
-          >
-            <Plus className="h-7 w-7" />
-          </Button>
-        </div>
 
         {/* Mobile Form */}
         <MobileTransactionForm
