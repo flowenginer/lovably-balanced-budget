@@ -165,18 +165,18 @@ export default function Budgets() {
   const budgetsInLimit = budgetsWithProgress.filter(b => b.percentage < 100).length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 px-4 md:px-6 pb-32 md:pb-6 mobile-safe-area">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Orçamentos</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl md:text-2xl font-bold">Orçamentos</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Gerencie seus limites de gastos por categoria
           </p>
         </div>
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2 text-sm">
               <Plus className="h-4 w-4" />
               Novo Orçamento
             </Button>

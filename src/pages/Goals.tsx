@@ -11,26 +11,7 @@ import { Target, Plus, Calendar, TrendingUp, CheckCircle, Edit2, Trash2 } from '
 import { useFinancial } from '@/contexts/FinancialContext';
 
 export default function Goals() {
-  const [goals, setGoals] = useState([
-    {
-      id: '1',
-      title: 'Reserva de Emergência',
-      targetAmount: 50000,
-      currentAmount: 15000,
-      deadline: '2024-12-31',
-      entityType: 'pf' as 'pf' | 'pj',
-      category: 'emergency'
-    },
-    {
-      id: '2',
-      title: 'Viagem Europa',
-      targetAmount: 25000,
-      currentAmount: 8000,
-      deadline: '2024-08-15',
-      entityType: 'pf' as 'pf' | 'pj',
-      category: 'travel'
-    }
-  ]);
+  const [goals, setGoals] = useState([]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -127,18 +108,18 @@ export default function Goals() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-4 md:px-6 pb-32 md:pb-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 max-w-7xl mx-auto px-4 md:px-6 pb-32 md:pb-6 mobile-safe-area">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Metas Financeiras</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold">Metas Financeiras</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Defina e acompanhe suas metas financeiras
           </p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2 text-sm">
               <Plus className="h-4 w-4" />
               Nova Meta
             </Button>

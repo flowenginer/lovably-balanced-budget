@@ -244,26 +244,24 @@ export default function Transactions() {
 
           {/* Balance cards */}
           <div className="flex gap-6">
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
                 <Lock className="h-4 w-4 opacity-80" />
                 <span className="text-sm opacity-90">Saldo atual</span>
               </div>
-              <p className="text-2xl font-bold text-green-300">
+              <p className="text-lg font-bold text-white break-words">
                 {formatCurrency(totalBalance)}
               </p>
             </div>
             
             <div className="w-px bg-primary-foreground/20" />
             
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
                 <Wallet className="h-4 w-4 opacity-80" />
                 <span className="text-sm opacity-90">Balanço mensal</span>
               </div>
-              <p className={`text-2xl font-bold ${
-                monthlyBalance >= 0 ? 'text-green-300' : 'text-red-300'
-              }`}>
+              <p className="text-lg font-bold text-white break-words">
                 {formatCurrency(monthlyBalance)}
               </p>
             </div>

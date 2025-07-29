@@ -124,7 +124,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background mobile-safe-area">
       {/* Mobile Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between p-4">
@@ -136,7 +136,7 @@ export default function Settings() {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="font-semibold">Mais Opções</h1>
+          <h1 className="font-semibold text-base">Mais Opções</h1>
           <div className="w-8" /> {/* Spacer */}
         </div>
       </div>
@@ -171,17 +171,17 @@ export default function Settings() {
       </div>
 
       {/* Menu Items */}
-      <div className="p-4 space-y-1">
+      <div className="p-4 space-y-2 pb-32">
         {menuItems.map((item, index) => (
           <Button
             key={index}
             variant="ghost"
-            className="w-full h-auto p-4 flex items-center justify-between hover:bg-muted/50"
+            className="w-full h-auto p-4 flex items-center justify-between hover:bg-muted/50 rounded-lg"
             onClick={item.action}
           >
             <div className="flex items-center gap-3">
               <item.icon className="h-5 w-5 text-muted-foreground" />
-              <span className="font-medium">{item.title}</span>
+              <span className="font-medium text-sm">{item.title}</span>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </Button>
