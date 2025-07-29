@@ -127,7 +127,7 @@ export default function Settings() {
     <div className="min-h-screen bg-background mobile-safe-area">
       {/* Mobile Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between px-4 py-4">
           <Button
             variant="ghost"
             size="icon"

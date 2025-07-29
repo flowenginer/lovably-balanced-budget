@@ -101,7 +101,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           id: a.id,
           name: a.name,
           type: a.type as 'checking' | 'savings' | 'cash' | 'investment' | 'credit',
-          balance: Number(a.balance || 0),
+          balance: Number(a.initial_balance || 0), // Usar initial_balance, será recalculado depois
           bankName: a.bank_name || undefined,
           bankIcon: a.bank_icon || undefined,
           showInDashboard: a.show_in_dashboard ?? true,
@@ -146,6 +146,20 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           } : undefined
         }));
         setTransactions(formattedTransactions);
+        
+        // Recalcular saldos das contas com base nas transações após carregar as contas
+        setTimeout(() => {
+          setAccounts(prevAccounts => {
+            return prevAccounts.map(account => {
+              const accountTransactions = formattedTransactions.filter(t => t.account === account.name);
+              const calculatedBalance = accountTransactions.reduce((sum, t) => {
+                return t.type === 'income' ? sum + t.amount : sum - t.amount;
+              }, account.initialBalance);
+              
+              return { ...account, balance: calculatedBalance };
+            });
+          });
+        }, 100);
       }
 
       // Load goals
