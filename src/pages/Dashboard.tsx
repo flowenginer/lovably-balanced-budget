@@ -320,22 +320,34 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {categoryData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={350}>
                 <PieChart>
                   <Pie
                     data={categoryData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
-                    fill="#8884d8"
+                    innerRadius={40}
+                    outerRadius={120}
+                    paddingAngle={2}
                     dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => 
+                      percent > 0.05 ? `${name}: ${(percent * 100).toFixed(0)}%` : ''
+                    }
+                    labelLine={false}
                   >
                     {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color}
+                        stroke="#ffffff"
+                        strokeWidth={1}
+                      />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip 
+                    formatter={(value: number) => [formatCurrency(value), 'Valor']}
+                    labelFormatter={(label) => `Categoria: ${label}`}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
