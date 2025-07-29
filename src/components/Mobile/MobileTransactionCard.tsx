@@ -35,21 +35,23 @@ export function MobileTransactionCard({
 
   return (
     <div 
-      className="bg-card border border-border/50 p-4 hover:bg-muted/30 transition-colors duration-200 cursor-pointer active:bg-muted/50"
+      className="bg-card border border-border/30 p-4 rounded-2xl hover:bg-muted/20 transition-all duration-200 cursor-pointer active:bg-muted/30 shadow-sm"
       onClick={() => onClick(transaction)}
     >
       <div className="flex items-center justify-between">
         {/* Left side - Icon and transaction info */}
-        <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="flex items-center gap-4 flex-1 min-w-0">
           <div 
-            className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: category?.color || '#6B7280' }}
+            className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm"
+            style={{ backgroundColor: category?.color || 'hsl(var(--primary))' }}
           >
-            {getCategoryIcon(transaction.category)}
+            <div className="text-white">
+              {getCategoryIcon(transaction.category)}
+            </div>
           </div>
           
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground text-base truncate leading-tight">
+            <h3 className="font-semibold text-foreground text-base truncate leading-tight mb-1">
               {transaction.description}
             </h3>
             <p className="text-sm text-muted-foreground truncate">
@@ -59,12 +61,12 @@ export function MobileTransactionCard({
         </div>
         
         {/* Right side - Amount and delete button */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <div className="text-right">
-            <span className={`font-bold text-base ${
+            <span className={`font-bold text-lg ${
               transaction.type === 'income' 
-                ? 'text-green-600 dark:text-green-400' 
-                : 'text-red-600 dark:text-red-400'
+                ? 'text-green-500' 
+                : 'text-red-500'
             }`}>
               {formatCurrency(transaction.amount)}
             </span>
@@ -77,9 +79,9 @@ export function MobileTransactionCard({
               e.stopPropagation();
               onDelete(transaction.id);
             }}
-            className="h-8 w-8 p-0 rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-900/20 dark:hover:bg-red-900/40"
+            className="h-8 w-8 p-0 rounded-full hover:bg-destructive/10"
           >
-            <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive transition-colors" />
           </Button>
         </div>
       </div>

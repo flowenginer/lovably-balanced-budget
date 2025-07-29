@@ -205,14 +205,14 @@ export default function Transactions() {
   // Mobile version
   if (isMobile) {
     return (
-      <div className="bg-background min-h-screen">
+      <div className="bg-background min-h-screen mobile-safe-area">
         {/* Header with month navigation */}
-        <div className="bg-primary text-primary-foreground p-4 rounded-b-3xl">
+        <div className="bg-primary text-primary-foreground px-4 pt-4 pb-6 rounded-b-3xl mx-2 mt-2">
           <div className="flex items-center justify-center mb-4">
             <Button
               variant="ghost" 
               size="sm"
-              className="text-primary-foreground hover:bg-primary-foreground/20"
+              className="text-primary-foreground hover:bg-primary-foreground/20 rounded-full"
             >
               Transações ▼
             </Button>
@@ -223,12 +223,12 @@ export default function Transactions() {
               variant="ghost"
               size="sm"
               onClick={prevMonth}
-              className="text-primary-foreground hover:bg-primary-foreground/20"
+              className="text-primary-foreground hover:bg-primary-foreground/20 rounded-full p-2"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" />
             </Button>
             
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-2xl font-bold">
               {monthNames[currentMonth.getMonth()]}
             </h2>
             
@@ -236,20 +236,20 @@ export default function Transactions() {
               variant="ghost"
               size="sm"
               onClick={nextMonth}
-              className="text-primary-foreground hover:bg-primary-foreground/20"
+              className="text-primary-foreground hover:bg-primary-foreground/20 rounded-full p-2"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
 
           {/* Balance cards */}
-          <div className="flex gap-4 mb-4">
+          <div className="flex gap-6">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <Lock className="h-4 w-4" />
+              <div className="flex items-center gap-2 mb-2">
+                <Lock className="h-4 w-4 opacity-80" />
                 <span className="text-sm opacity-90">Saldo atual</span>
               </div>
-              <p className="text-xl font-bold text-green-300">
+              <p className="text-2xl font-bold text-green-300">
                 {formatCurrency(totalBalance)}
               </p>
             </div>
@@ -257,28 +257,28 @@ export default function Transactions() {
             <div className="w-px bg-primary-foreground/20" />
             
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <Wallet className="h-4 w-4" />
+              <div className="flex items-center gap-2 mb-2">
+                <Wallet className="h-4 w-4 opacity-80" />
                 <span className="text-sm opacity-90">Balanço mensal</span>
               </div>
-              <p className={`text-xl font-bold ${
+              <p className={`text-2xl font-bold ${
                 monthlyBalance >= 0 ? 'text-green-300' : 'text-red-300'
               }`}>
-                {monthlyBalance >= 0 ? '' : '-'}{formatCurrency(Math.abs(monthlyBalance))}
+                {formatCurrency(monthlyBalance)}
               </p>
             </div>
           </div>
         </div>
 
         {/* Transactions grouped by date */}
-        <div className="p-4 space-y-4 pb-32">
+        <div className="px-4 py-6 space-y-6 pb-32">
           {Object.entries(groupedTransactions).length > 0 ? (
             Object.entries(groupedTransactions).map(([dateKey, transactionsForDate]) => (
               <div key={dateKey}>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3 capitalize">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3 capitalize px-1">
                   {dateKey}
                 </h3>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {transactionsForDate.map((transaction) => (
                     <MobileTransactionCard
                       key={transaction.id}
@@ -303,6 +303,7 @@ export default function Transactions() {
                   setInitialTransactionType('expense');
                   setIsDialogOpen(true);
                 }}
+                className="rounded-full"
               >
                 Criar primeira transação
               </Button>
@@ -311,16 +312,16 @@ export default function Transactions() {
         </div>
 
         {/* Floating Action Button */}
-        <div className="fixed bottom-20 right-4">
+        <div className="fixed bottom-24 right-6">
           <Button
             size="lg"
             onClick={() => {
               setInitialTransactionType('expense');
               setIsDialogOpen(true);
             }}
-            className="rounded-full w-14 h-14 shadow-lg"
+            className="rounded-full w-16 h-16 shadow-xl bg-primary hover:bg-primary/90"
           >
-            <Plus className="h-6 w-6" />
+            <Plus className="h-7 w-7" />
           </Button>
         </div>
 
