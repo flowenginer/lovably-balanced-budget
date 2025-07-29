@@ -170,8 +170,8 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Menu Items */}
-      <div className="p-4 space-y-2 pb-32">
+      {/* Menu Items - Aplicando Regra Global de Layout Mobile */}
+      <div className="px-4 pb-32 space-y-4">{/* Regra Global de Layout Mobile aplicada */}
         {menuItems.map((item, index) => (
           <Button
             key={index}

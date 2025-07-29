@@ -165,7 +165,7 @@ export default function Budgets() {
   const budgetsInLimit = budgetsWithProgress.filter(b => b.percentage < 100).length;
 
   return (
-    <div className="space-y-4 px-4 md:px-6 pb-32 md:pb-6 mobile-safe-area">
+    <div className="px-4 pb-32 space-y-4">{/* Regra Global de Layout Mobile aplicada */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold">Orçamentos</h1>
@@ -357,7 +357,7 @@ export default function Budgets() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-2">{/* Aplicando space-y-2 dentro do card conforme diretrizes */}
                   <div className="flex justify-between text-sm">
                     <span>
                       Gasto: {budget.spent.toLocaleString('pt-BR', { 

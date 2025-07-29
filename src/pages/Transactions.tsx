@@ -238,28 +238,28 @@ export default function Transactions() {
             <div className="text-center space-y-4">
               <div>
                 <p className="text-sm opacity-90 mb-2">Saldo atual em contas</p>
-                <p className="text-2xl font-bold break-words">
+                <p className="text-2xl font-bold break-words">{/* Aplicando break-words conforme diretrizes críticas */}
                   {formatCurrency(totalBalance)}
                 </p>
               </div>
               
               <div className="flex justify-center gap-4 px-2">
-                <div className="text-center min-w-0 flex-1 max-w-[140px]">
+                <div className="text-center min-w-0 flex-1 max-w-[140px]">{/* Aplicando min-w-0 conforme diretrizes críticas */}
                   <div className="flex items-center justify-center gap-2 mb-1">
                     <div className="w-2 h-2 rounded-full bg-green-300 flex-shrink-0" />
                     <span className="text-xs opacity-90">Receitas</span>
                   </div>
-                  <p className="text-sm font-semibold text-green-100 break-words leading-tight">
+                  <p className="text-sm font-semibold text-green-100 break-words leading-tight">{/* Aplicando break-words conforme diretrizes críticas */}
                     {formatCurrency(monthlyIncome)}
                   </p>
                 </div>
                 
-                <div className="text-center min-w-0 flex-1 max-w-[140px]">
+                <div className="text-center min-w-0 flex-1 max-w-[140px]">{/* Aplicando min-w-0 conforme diretrizes críticas */}
                   <div className="flex items-center justify-center gap-2 mb-1">
                     <div className="w-2 h-2 rounded-full bg-red-300 flex-shrink-0" />
                     <span className="text-xs opacity-90">Despesas</span>
                   </div>
-                  <p className="text-sm font-semibold text-red-100 break-words leading-tight">
+                  <p className="text-sm font-semibold text-red-100 break-words leading-tight">{/* Aplicando break-words conforme diretrizes críticas */}
                     {formatCurrency(monthlyExpenses)}
                   </p>
                 </div>
@@ -269,7 +269,7 @@ export default function Transactions() {
         </div>
 
         {/* Transactions grouped by date */}
-        <div className="px-4 pb-32 space-y-4">{/* Aplicando o mesmo padding da dashboard */}
+        <div className="px-4 pb-32 space-y-4">{/* Regra Global de Layout Mobile aplicada */}
           {Object.entries(groupedTransactions).length > 0 ? (
             Object.entries(groupedTransactions).map(([dateKey, transactionsForDate]) => (
               <div key={dateKey}>

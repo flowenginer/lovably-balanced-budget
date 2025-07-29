@@ -25,7 +25,7 @@ export default function Goals() {
   };
 
   return (
-    <div className="space-y-4 px-4 md:px-6 pb-32 md:pb-6 mobile-safe-area">
+    <div className="px-4 pb-32 space-y-4">{/* Regra Global de Layout Mobile aplicada */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold">Metas Financeiras</h1>
