@@ -165,7 +165,7 @@ export default function Budgets() {
   const budgetsInLimit = budgetsWithProgress.filter(b => b.percentage < 100).length;
 
   return (
-    <div className="px-4 pb-32 space-y-4">{/* Regra Global de Layout Mobile aplicada */}
+    <div className="px-4 pb-32 space-y-4">{/* Regra Global: px-4 pb-32 aplicada */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold">Orçamentos</h1>

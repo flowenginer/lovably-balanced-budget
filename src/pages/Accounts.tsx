@@ -164,7 +164,7 @@ export default function Accounts() {
   const visibleAccounts = bankAccounts.filter(account => account.showInDashboard ?? true);
 
   return (
-    <div className="px-4 pb-32 space-y-4">{/* Regra Global de Layout Mobile aplicada */}
+    <div className="px-4 pb-32 space-y-4">{/* Regra Global: px-4 pb-32 aplicada */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold">Contas Bancárias</h1>
@@ -210,7 +210,7 @@ export default function Accounts() {
                       <div className="flex items-center gap-3">
                         {bank.iconUrl ? (
                           <img 
-                            src={bank.iconUrl.startsWith('/src/assets/') ? bank.iconUrl.replace('/src/', '/') : bank.iconUrl} 
+                            src={bank.iconUrl} 
                             alt={bank.name}
                             className="w-8 h-8 rounded-full object-contain"
                             onError={(e) => {
@@ -237,7 +237,7 @@ export default function Accounts() {
                 <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
                     {selectedBank.iconUrl ? (
                       <img 
-                        src={selectedBank.iconUrl.startsWith('/src/assets/') ? selectedBank.iconUrl.replace('/src/', '/') : selectedBank.iconUrl} 
+                        src={selectedBank.iconUrl} 
                         alt={selectedBank.name}
                         className="w-10 h-10 rounded-full object-contain"
                         onError={(e) => {
@@ -386,9 +386,7 @@ export default function Accounts() {
                     <div className="flex items-center gap-4">
                       {account.bankName && banks.find(b => b.name === account.bankName)?.iconUrl ? (
                         <img 
-                          src={banks.find(b => b.name === account.bankName)?.iconUrl?.startsWith('/src/assets/') 
-                            ? banks.find(b => b.name === account.bankName)?.iconUrl?.replace('/src/', '/') 
-                            : banks.find(b => b.name === account.bankName)?.iconUrl} 
+                          src={banks.find(b => b.name === account.bankName)?.iconUrl} 
                           alt={account.bankName}
                           className="w-12 h-12 rounded-full object-contain"
                           onError={(e) => {
