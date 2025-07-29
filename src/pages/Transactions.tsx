@@ -211,7 +211,7 @@ export default function Transactions() {
   // Mobile version - RECONSTRUÇÃO COMPLETA CONFORME ESPECIFICAÇÕES
   if (isMobile) {
     return (
-      <div className="px-4 pb-32 space-y-3">
+      <div className="px-6 pb-32 space-y-3">
         {/* Navegação de Mês */}
         <div className="flex items-center justify-center gap-8">
           <Button
