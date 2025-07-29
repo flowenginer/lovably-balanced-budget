@@ -28,10 +28,10 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { icon: Home, label: 'Dashboard', path: '/' },
-    { icon: Target, label: 'Metas', path: '/goals' },
-    { icon: PieChart, label: 'Relatórios', path: '/reports' },
+    { icon: Home, label: 'Principal', path: '/' },
     { icon: List, label: 'Transações', path: '/transactions' },
+    { icon: Target, label: 'Planejamento', path: '/budgets' },
+    { icon: PieChart, label: 'Mais', path: '/settings' },
   ];
 
   return (
