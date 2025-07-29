@@ -205,109 +205,104 @@ export default function Transactions() {
   // Mobile version
   if (isMobile) {
     return (
-      <div className="flex flex-col min-h-screen bg-background">
-        {/* Header with month navigation and balance */}
-        <div className="px-4 pt-6 pb-4">
-          {/* Month navigation - garantindo que as setas não sejam cortadas */}
-          <div className="flex items-center justify-between mb-6 w-full">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={prevMonth}
-              className="text-muted-foreground hover:text-foreground rounded-full p-2 flex-shrink-0"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            
-            <h2 className="text-xl font-bold text-foreground text-center flex-1">
-              {monthNames[currentMonth.getMonth()]}
-            </h2>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={nextMonth}
-              className="text-muted-foreground hover:text-foreground rounded-full p-2 flex-shrink-0"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-          </div>
+      <div className="px-4 pb-32 space-y-4">{/* Regra Global de Layout Mobile aplicada de forma completa */}
+        {/* Month navigation */}
+        <div className="flex items-center justify-between w-full pt-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={prevMonth}
+            className="text-muted-foreground hover:text-foreground rounded-full p-2 flex-shrink-0"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          
+          <h2 className="text-xl font-bold text-foreground text-center flex-1">
+            {monthNames[currentMonth.getMonth()]}
+          </h2>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={nextMonth}
+            className="text-muted-foreground hover:text-foreground rounded-full p-2 flex-shrink-0"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+        </div>
 
-          {/* Balance section - centralizando e ajustando espaçamento */}
-          <div className="bg-primary text-primary-foreground px-4 py-6 rounded-2xl mx-2">
-            <div className="text-center space-y-4">
-              <div>
-                <p className="text-sm opacity-90 mb-2">Saldo atual em contas</p>
-                <p className="text-2xl font-bold break-words">{/* Aplicando break-words conforme diretrizes críticas */}
-                  {formatCurrency(totalBalance)}
+        {/* Balance section */}
+        <div className="bg-primary text-primary-foreground px-4 py-6 rounded-2xl">
+          <div className="text-center space-y-4">
+            <div>
+              <p className="text-sm opacity-90 mb-2">Saldo atual em contas</p>
+              <p className="text-2xl font-bold break-words">
+                {formatCurrency(totalBalance)}
+              </p>
+            </div>
+            
+            <div className="flex justify-center gap-4 px-2">
+              <div className="text-center min-w-0 flex-1 max-w-[140px]">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <div className="w-2 h-2 rounded-full bg-green-300 flex-shrink-0" />
+                  <span className="text-xs opacity-90">Receitas</span>
+                </div>
+                <p className="text-sm font-semibold text-green-100 break-words leading-tight">
+                  {formatCurrency(monthlyIncome)}
                 </p>
               </div>
               
-              <div className="flex justify-center gap-4 px-2">
-                <div className="text-center min-w-0 flex-1 max-w-[140px]">{/* Aplicando min-w-0 conforme diretrizes críticas */}
-                  <div className="flex items-center justify-center gap-2 mb-1">
-                    <div className="w-2 h-2 rounded-full bg-green-300 flex-shrink-0" />
-                    <span className="text-xs opacity-90">Receitas</span>
-                  </div>
-                  <p className="text-sm font-semibold text-green-100 break-words leading-tight">{/* Aplicando break-words conforme diretrizes críticas */}
-                    {formatCurrency(monthlyIncome)}
-                  </p>
+              <div className="text-center min-w-0 flex-1 max-w-[140px]">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <div className="w-2 h-2 rounded-full bg-red-300 flex-shrink-0" />
+                  <span className="text-xs opacity-90">Despesas</span>
                 </div>
-                
-                <div className="text-center min-w-0 flex-1 max-w-[140px]">{/* Aplicando min-w-0 conforme diretrizes críticas */}
-                  <div className="flex items-center justify-center gap-2 mb-1">
-                    <div className="w-2 h-2 rounded-full bg-red-300 flex-shrink-0" />
-                    <span className="text-xs opacity-90">Despesas</span>
-                  </div>
-                  <p className="text-sm font-semibold text-red-100 break-words leading-tight">{/* Aplicando break-words conforme diretrizes críticas */}
-                    {formatCurrency(monthlyExpenses)}
-                  </p>
-                </div>
+                <p className="text-sm font-semibold text-red-100 break-words leading-tight">
+                  {formatCurrency(monthlyExpenses)}
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Transactions grouped by date */}
-        <div className="px-4 pb-32 space-y-4">{/* Regra Global de Layout Mobile aplicada */}
-          {Object.entries(groupedTransactions).length > 0 ? (
-            Object.entries(groupedTransactions).map(([dateKey, transactionsForDate]) => (
-              <div key={dateKey}>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3 capitalize px-1">
-                  {dateKey}
-                </h3>
-                <div className="space-y-2">
-                  {transactionsForDate.map((transaction) => (
-                    <MobileTransactionCard
-                      key={transaction.id}
-                      transaction={transaction}
-                      categories={categories}
-                      onDelete={handleDelete}
-                      onClick={handleTransactionClick}
-                      formatCurrency={formatCurrency}
-                    />
-                  ))}
-                </div>
+        {/* Transactions list */}
+        {Object.entries(groupedTransactions).length > 0 ? (
+          Object.entries(groupedTransactions).map(([dateKey, transactionsForDate]) => (
+            <div key={dateKey}>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3 capitalize">
+                {dateKey}
+              </h3>
+              <div className="space-y-2">
+                {transactionsForDate.map((transaction) => (
+                  <MobileTransactionCard
+                    key={transaction.id}
+                    transaction={transaction}
+                    categories={categories}
+                    onDelete={handleDelete}
+                    onClick={handleTransactionClick}
+                    formatCurrency={formatCurrency}
+                  />
+                ))}
               </div>
-            ))
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">
-                Nenhuma transação encontrada para {monthNames[currentMonth.getMonth()]}
-              </p>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setInitialTransactionType('expense');
-                  setIsDialogOpen(true);
-                }}
-                className="rounded-full"
-              >
-                Criar primeira transação
-              </Button>
             </div>
-          )}
-        </div>
+          ))
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground mb-4">
+              Nenhuma transação encontrada para {monthNames[currentMonth.getMonth()]}
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setInitialTransactionType('expense');
+                setIsDialogOpen(true);
+              }}
+              className="rounded-full"
+            >
+              Criar primeira transação
+            </Button>
+          </div>
+        )}
 
 
         {/* Mobile Form */}
