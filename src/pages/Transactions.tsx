@@ -205,30 +205,21 @@ export default function Transactions() {
   // Mobile version
   if (isMobile) {
     return (
-      <div className="bg-background min-h-screen mobile-safe-area">
-        {/* Header with month navigation */}
-        <div className="bg-primary text-primary-foreground px-4 pt-4 pb-6 rounded-b-3xl mx-4 mt-2">{/* Ajustado margin lateral */}
-          <div className="flex items-center justify-center mb-4">
-            <Button
-              variant="ghost" 
-              size="sm"
-              className="text-primary-foreground hover:bg-primary-foreground/20 rounded-full"
-            >
-              Transações ▼
-            </Button>
-          </div>
-          
+      <div className="flex flex-col min-h-screen bg-background">
+        {/* Header with month navigation and balance */}
+        <div className="px-4 pt-6 pb-4">
+          {/* Month navigation */}
           <div className="flex items-center justify-between mb-6">
             <Button
               variant="ghost"
               size="sm"
               onClick={prevMonth}
-              className="text-primary-foreground hover:bg-primary-foreground/20 rounded-full p-2"
+              className="text-muted-foreground hover:text-foreground rounded-full p-2"
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
             
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-xl font-bold text-foreground">
               {monthNames[currentMonth.getMonth()]}
             </h2>
             
@@ -236,38 +227,49 @@ export default function Transactions() {
               variant="ghost"
               size="sm"
               onClick={nextMonth}
-              className="text-primary-foreground hover:bg-primary-foreground/20 rounded-full p-2"
+              className="text-muted-foreground hover:text-foreground rounded-full p-2"
             >
               <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
 
-          {/* Balance cards */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Lock className="h-4 w-4 opacity-80 flex-shrink-0" />
-                <span className="text-xs text-white opacity-90">Saldo atual</span>
+          {/* Balance section - seguindo o padrão da dashboard */}
+          <div className="bg-primary text-primary-foreground px-4 py-6 rounded-2xl">
+            <div className="text-center space-y-4">
+              <div>
+                <p className="text-sm opacity-90 mb-2">Saldo atual em contas</p>
+                <p className="text-2xl font-bold break-words">
+                  {formatCurrency(totalBalance)}
+                </p>
               </div>
-              <p className="text-sm font-bold text-white break-words leading-tight">
-                {formatCurrency(totalBalance)}
-              </p>
-            </div>
-            
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Wallet className="h-4 w-4 opacity-80 flex-shrink-0" />
-                <span className="text-xs text-white opacity-90">Balanço</span>
+              
+              <div className="flex justify-center gap-6">
+                <div className="text-center min-w-0 flex-1">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <div className="w-2 h-2 rounded-full bg-green-300" />
+                    <span className="text-xs opacity-90">Receitas</span>
+                  </div>
+                  <p className="text-sm font-semibold text-green-100 break-words">
+                    {formatCurrency(monthlyIncome)}
+                  </p>
+                </div>
+                
+                <div className="text-center min-w-0 flex-1">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <div className="w-2 h-2 rounded-full bg-red-300" />
+                    <span className="text-xs opacity-90">Despesas</span>
+                  </div>
+                  <p className="text-sm font-semibold text-red-100 break-words">
+                    {formatCurrency(monthlyExpenses)}
+                  </p>
+                </div>
               </div>
-              <p className="text-sm font-bold text-white break-words leading-tight">
-                {formatCurrency(monthlyBalance)}
-              </p>
             </div>
           </div>
         </div>
 
         {/* Transactions grouped by date */}
-        <div className="px-4 py-6 space-y-6 pb-32 pr-4">{/* Adicionado pr-4 para espaçamento direito correto */}
+        <div className="px-4 pb-32 space-y-4">{/* Aplicando o mesmo padding da dashboard */}
           {Object.entries(groupedTransactions).length > 0 ? (
             Object.entries(groupedTransactions).map(([dateKey, transactionsForDate]) => (
               <div key={dateKey}>
