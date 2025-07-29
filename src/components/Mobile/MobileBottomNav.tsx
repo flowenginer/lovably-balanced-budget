@@ -5,7 +5,12 @@ import {
   PieChart, 
   Plus, 
   Target,
-  List
+  List,
+  MoreHorizontal,
+  Settings,
+  CreditCard,
+  Brain,
+  Wallet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -31,8 +36,16 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
     { icon: Home, label: 'Principal', path: '/' },
     { icon: List, label: 'Transações', path: '/transactions' },
     { icon: Target, label: 'Planejamento', path: '/budgets' },
-    { icon: PieChart, label: 'Mais', path: '/settings' },
   ];
+
+  const moreMenuItems = [
+    { icon: Wallet, label: 'Contas', path: '/accounts' },
+    { icon: Target, label: 'Metas', path: '/goals' },
+    { icon: Brain, label: 'IA Financeira', path: '/ai' },
+    { icon: Settings, label: 'Configurações', path: '/settings' },
+  ];
+
+  const isMoreMenuActive = moreMenuItems.some(item => isActive(item.path));
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50 pb-safe">
@@ -82,25 +95,54 @@ export function MobileBottomNav({ onAddTransaction }: MobileBottomNavProps) {
           </DropdownMenu>
         </div>
 
-        {/* Last two nav items */}
+        {/* Third nav item and More dropdown */}
         <div className="flex flex-1 justify-around min-w-0">
-          {navItems.slice(2, 4).map((item) => (
-            <Button
-              key={item.path}
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(item.path)}
-              className={cn(
-                "flex flex-col items-center gap-1 h-auto py-2 px-2 min-w-0",
-                isActive(item.path) 
-                  ? "text-primary" 
-                  : "text-muted-foreground"
-              )}
-            >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
-              <span className="text-xs font-medium truncate max-w-[60px]">{item.label}</span>
-            </Button>
-          ))}
+          {/* Planejamento button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/budgets')}
+            className={cn(
+              "flex flex-col items-center gap-1 h-auto py-2 px-2 min-w-0",
+              isActive('/budgets') 
+                ? "text-primary" 
+                : "text-muted-foreground"
+            )}
+          >
+            <Target className="h-5 w-5 flex-shrink-0" />
+            <span className="text-xs font-medium truncate max-w-[60px]">Planejamento</span>
+          </Button>
+
+          {/* More dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "flex flex-col items-center gap-1 h-auto py-2 px-2 min-w-0",
+                  isMoreMenuActive 
+                    ? "text-primary" 
+                    : "text-muted-foreground"
+                )}
+              >
+                <MoreHorizontal className="h-5 w-5 flex-shrink-0" />
+                <span className="text-xs font-medium truncate max-w-[60px]">Mais</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="mb-2 bg-background border-border z-[100]" align="center">
+              {moreMenuItems.map((item) => (
+                <DropdownMenuItem 
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className="cursor-pointer"
+                >
+                  <item.icon className="h-4 w-4 mr-2" />
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
