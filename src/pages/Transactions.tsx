@@ -208,18 +208,18 @@ export default function Transactions() {
       <div className="flex flex-col min-h-screen bg-background">
         {/* Header with month navigation and balance */}
         <div className="px-4 pt-6 pb-4">
-          {/* Month navigation */}
-          <div className="flex items-center justify-between mb-6">
+          {/* Month navigation - garantindo que as setas não sejam cortadas */}
+          <div className="flex items-center justify-between mb-6 w-full">
             <Button
               variant="ghost"
               size="sm"
               onClick={prevMonth}
-              className="text-muted-foreground hover:text-foreground rounded-full p-2"
+              className="text-muted-foreground hover:text-foreground rounded-full p-2 flex-shrink-0"
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
             
-            <h2 className="text-xl font-bold text-foreground">
+            <h2 className="text-xl font-bold text-foreground text-center flex-1">
               {monthNames[currentMonth.getMonth()]}
             </h2>
             
@@ -227,14 +227,14 @@ export default function Transactions() {
               variant="ghost"
               size="sm"
               onClick={nextMonth}
-              className="text-muted-foreground hover:text-foreground rounded-full p-2"
+              className="text-muted-foreground hover:text-foreground rounded-full p-2 flex-shrink-0"
             >
               <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
 
-          {/* Balance section - seguindo o padrão da dashboard */}
-          <div className="bg-primary text-primary-foreground px-4 py-6 rounded-2xl">
+          {/* Balance section - centralizando e ajustando espaçamento */}
+          <div className="bg-primary text-primary-foreground px-4 py-6 rounded-2xl mx-2">
             <div className="text-center space-y-4">
               <div>
                 <p className="text-sm opacity-90 mb-2">Saldo atual em contas</p>
@@ -243,23 +243,23 @@ export default function Transactions() {
                 </p>
               </div>
               
-              <div className="flex justify-center gap-6">
-                <div className="text-center min-w-0 flex-1">
+              <div className="flex justify-center gap-4 px-2">
+                <div className="text-center min-w-0 flex-1 max-w-[140px]">
                   <div className="flex items-center justify-center gap-2 mb-1">
-                    <div className="w-2 h-2 rounded-full bg-green-300" />
+                    <div className="w-2 h-2 rounded-full bg-green-300 flex-shrink-0" />
                     <span className="text-xs opacity-90">Receitas</span>
                   </div>
-                  <p className="text-sm font-semibold text-green-100 break-words">
+                  <p className="text-sm font-semibold text-green-100 break-words leading-tight">
                     {formatCurrency(monthlyIncome)}
                   </p>
                 </div>
                 
-                <div className="text-center min-w-0 flex-1">
+                <div className="text-center min-w-0 flex-1 max-w-[140px]">
                   <div className="flex items-center justify-center gap-2 mb-1">
-                    <div className="w-2 h-2 rounded-full bg-red-300" />
+                    <div className="w-2 h-2 rounded-full bg-red-300 flex-shrink-0" />
                     <span className="text-xs opacity-90">Despesas</span>
                   </div>
-                  <p className="text-sm font-semibold text-red-100 break-words">
+                  <p className="text-sm font-semibold text-red-100 break-words leading-tight">
                     {formatCurrency(monthlyExpenses)}
                   </p>
                 </div>
