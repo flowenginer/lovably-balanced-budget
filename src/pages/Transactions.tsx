@@ -211,19 +211,19 @@ export default function Transactions() {
   // Mobile version - RECONSTRUÇÃO COMPLETA CONFORME ESPECIFICAÇÕES
   if (isMobile) {
     return (
-      <div className="px-4 pb-32 space-y-4">
+      <div className="px-4 pb-32 space-y-3">
         {/* Navegação de Mês */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center gap-8">
           <Button
             variant="ghost"
             size="sm"
             onClick={prevMonth}
             className="rounded-full p-2 flex-shrink-0"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4" />
           </Button>
           
-          <h2 className="text-lg font-bold text-center">
+          <h2 className="text-lg font-bold">
             {monthNames[currentMonth.getMonth()]}
           </h2>
           
@@ -233,17 +233,17 @@ export default function Transactions() {
             onClick={nextMonth}
             className="rounded-full p-2 flex-shrink-0"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
 
         {/* Card de Saldos */}
-        <div className="bg-primary text-primary-foreground p-4 rounded-lg">
-          <div className="flex gap-4">
+        <div className="bg-primary text-primary-foreground p-3 rounded-lg">
+          <div className="flex gap-3">
             {/* Div de "Saldo atual" */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-white/80">Saldo atual</p>
-              <p className="text-xl font-bold text-white break-words">
+              <p className="text-xs text-white/80">Saldo atual</p>
+              <p className="text-lg font-bold text-white break-words">
                 {formatCurrency(totalBalance)}
               </p>
             </div>
@@ -253,8 +253,8 @@ export default function Transactions() {
             
             {/* Div de "Balanço mensal" */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-white/80">Balanço mensal</p>
-              <p className="text-xl font-bold text-white break-words">
+              <p className="text-xs text-white/80">Balanço mensal</p>
+              <p className="text-lg font-bold text-white break-words">
                 {formatCurrency(monthlyBalance)}
               </p>
             </div>

@@ -40,9 +40,9 @@ export function MobileTransactionCard({
     >
       <div className="flex items-center justify-between">
         {/* Left side - Icon and transaction info */}
-        <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           <div 
-            className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm"
+            className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm"
             style={{ backgroundColor: category?.color || 'hsl(var(--primary))' }}
           >
             <div className="text-white">
@@ -51,19 +51,19 @@ export function MobileTransactionCard({
           </div>
           
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground text-base truncate leading-tight mb-1">
+            <h3 className="font-semibold text-foreground text-sm truncate leading-tight mb-1">
               {transaction.description}
             </h3>
-            <p className="text-sm text-muted-foreground truncate">
+            <p className="text-xs text-muted-foreground truncate">
               {transaction.category} | {transaction.account}
             </p>
           </div>
         </div>
         
         {/* Right side - Amount and delete button */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <div className="text-right">
-            <span className={`font-bold text-lg ${
+            <span className={`font-bold text-base ${
               transaction.type === 'income' 
                 ? 'text-green-500' 
                 : 'text-red-500'
