@@ -168,7 +168,7 @@ export default function Dashboard() {
 
   // Desktop Dashboard
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pl-6">{/* Adicionado pl-6 para espaçamento à esquerda */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
