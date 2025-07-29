@@ -211,20 +211,19 @@ export default function Transactions() {
   // Mobile version - RECONSTRUÇÃO COMPLETA CONFORME ESPECIFICAÇÕES
   if (isMobile) {
     return (
-      <div className="px-4 pb-32 space-y-4">{/* Regra Global: px-4 pb-32 aplicada */}
-        {/* Componente de Cabeçalho (Header) */}
+      <div className="px-4 pb-32 space-y-4">
         {/* Navegação de Mês */}
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
             size="sm"
             onClick={prevMonth}
-            className="rounded-full p-2"
+            className="rounded-full p-2 flex-shrink-0"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
           
-          <h2 className="text-lg font-bold">
+          <h2 className="text-lg font-bold text-center">
             {monthNames[currentMonth.getMonth()]}
           </h2>
           
@@ -232,7 +231,7 @@ export default function Transactions() {
             variant="ghost"
             size="sm"
             onClick={nextMonth}
-            className="rounded-full p-2"
+            className="rounded-full p-2 flex-shrink-0"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
@@ -240,11 +239,11 @@ export default function Transactions() {
 
         {/* Card de Saldos */}
         <div className="bg-primary text-primary-foreground p-4 rounded-lg">
-          <div className="flex gap-4">{/* Área crítica conforme especificação */}
+          <div className="flex gap-4">
             {/* Div de "Saldo atual" */}
-            <div className="flex-1 min-w-0">{/* Classes obrigatórias: flex-1 min-w-0 */}
+            <div className="flex-1 min-w-0">
               <p className="text-sm text-white/80">Saldo atual</p>
-              <p className="text-xl font-bold text-white break-words">{/* break-words obrigatório */}
+              <p className="text-xl font-bold text-white break-words">
                 {formatCurrency(totalBalance)}
               </p>
             </div>
@@ -253,9 +252,9 @@ export default function Transactions() {
             <div className="w-px bg-white/20"></div>
             
             {/* Div de "Balanço mensal" */}
-            <div className="flex-1 min-w-0">{/* Classes obrigatórias: flex-1 min-w-0 */}
+            <div className="flex-1 min-w-0">
               <p className="text-sm text-white/80">Balanço mensal</p>
-              <p className="text-xl font-bold text-white break-words">{/* break-words obrigatório */}
+              <p className="text-xl font-bold text-white break-words">
                 {formatCurrency(monthlyBalance)}
               </p>
             </div>
