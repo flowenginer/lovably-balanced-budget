@@ -10,12 +10,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Calendar, Filter, Search, Trash2, Edit } from 'lucide-react';
+import { Plus, Calendar, Filter, Search, Trash2, Edit, ChevronLeft, ChevronRight, Lock, Wallet } from 'lucide-react';
 import { Transaction } from '@/types/financial';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileTransactionCard } from '@/components/Mobile/MobileTransactionCard';
 import { MobileTransactionForm } from '@/components/Mobile/MobileTransactionForm';
+import { TransactionDetailsModal } from '@/components/Mobile/TransactionDetailsModal';
 
 export default function Transactions() {
   const { 
@@ -33,6 +34,9 @@ export default function Transactions() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [initialTransactionType, setInitialTransactionType] = useState<'income' | 'expense'>('expense');
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Form state
   const [formData, setFormData] = useState({
@@ -121,96 +125,203 @@ export default function Transactions() {
 
   const typeCategories = entityCategories.filter(c => c.type === formData.type);
 
+  // Helper functions for mobile
+  const handleTransactionClick = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleMarkAsPaid = (transactionId: string) => {
+    // Aqui você pode implementar a lógica para marcar como pago
+    toast({
+      title: "Sucesso",
+      description: "Transação marcada como paga!",
+    });
+    setIsDetailsModalOpen(false);
+  };
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    // Implementar lógica de edição
+    setIsDetailsModalOpen(false);
+    setIsDialogOpen(true);
+  };
+
+  // Calculate monthly data
+  const currentMonthTransactions = transactions.filter(t => {
+    const transactionDate = new Date(t.date);
+    return transactionDate.getMonth() === currentMonth.getMonth() && 
+           transactionDate.getFullYear() === currentMonth.getFullYear();
+  });
+
+  const monthlyIncome = currentMonthTransactions
+    .filter(t => t.type === 'income')
+    .reduce((acc, t) => acc + t.amount, 0);
+
+  const monthlyExpenses = currentMonthTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((acc, t) => acc + t.amount, 0);
+
+  const monthlyBalance = monthlyIncome - monthlyExpenses;
+
+  const totalBalance = transactions.reduce((acc, t) => {
+    return t.type === 'income' ? acc + t.amount : acc - t.amount;
+  }, 0);
+
+  // Filter transactions by current month
+  const monthlyFilteredTransactions = filteredTransactions.filter(t => {
+    const transactionDate = new Date(t.date);
+    return transactionDate.getMonth() === currentMonth.getMonth() && 
+           transactionDate.getFullYear() === currentMonth.getFullYear();
+  });
+
+  // Group transactions by date
+  const groupedTransactions = monthlyFilteredTransactions.reduce((groups, transaction) => {
+    const date = new Date(transaction.date);
+    const dateKey = date.toLocaleDateString('pt-BR', { 
+      weekday: 'long', 
+      day: '2-digit' 
+    });
+    
+    if (!groups[dateKey]) {
+      groups[dateKey] = [];
+    }
+    groups[dateKey].push(transaction);
+    return groups;
+  }, {} as Record<string, Transaction[]>);
+
+  const monthNames = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  };
+
+  const prevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+
   // Mobile version
   if (isMobile) {
     return (
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border p-4 shadow-sm">
-          <h1 className="text-xl font-bold mb-1 text-card-foreground">Transações</h1>
-          <p className="text-sm text-muted-foreground">
-            Gerencie suas finanças
-          </p>
-        </div>
-
-        {/* Quick filters */}
-        <div className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border p-4 shadow-sm">
-          <div className="flex gap-2 mb-3">
-            <Input
-              placeholder="Buscar..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 rounded-xl bg-background border-border"
-            />
+      <div className="bg-background min-h-screen">
+        {/* Header with month navigation */}
+        <div className="bg-primary text-primary-foreground p-4 rounded-b-3xl">
+          <div className="flex items-center justify-center mb-4">
             <Button
-              variant="outline"
-              onClick={() => {
-                setInitialTransactionType('expense');
-                setIsDialogOpen(true);
-              }}
-              className="aspect-square rounded-xl flex-shrink-0"
+              variant="ghost" 
+              size="sm"
+              className="text-primary-foreground hover:bg-primary-foreground/20"
             >
-              <Plus className="h-4 w-4" />
+              Transações ▼
+            </Button>
+          </div>
+          
+          <div className="flex items-center justify-between mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={prevMonth}
+              className="text-primary-foreground hover:bg-primary-foreground/20"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            
+            <h2 className="text-xl font-semibold">
+              {monthNames[currentMonth.getMonth()]}
+            </h2>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={nextMonth}
+              className="text-primary-foreground hover:bg-primary-foreground/20"
+            >
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
 
-          <div className="flex gap-2 overflow-hidden">
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="flex-1 rounded-xl bg-background border-border min-w-0">
-                <SelectValue placeholder="Tipo" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="income">Receitas</SelectItem>
-                <SelectItem value="expense">Despesas</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="flex-1 rounded-xl bg-background border-border min-w-0">
-                <SelectValue placeholder="Categoria" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
-                <SelectItem value="all">Todas</SelectItem>
-                {entityCategories.filter((category, index, self) => 
-                  self.findIndex(c => c.name === category.name) === index
-                ).map((category) => (
-                  <SelectItem key={category.id} value={category.name}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Balance cards */}
+          <div className="flex gap-4 mb-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <Lock className="h-4 w-4" />
+                <span className="text-sm opacity-90">Saldo atual</span>
+              </div>
+              <p className="text-xl font-bold text-green-300">
+                {formatCurrency(totalBalance)}
+              </p>
+            </div>
+            
+            <div className="w-px bg-primary-foreground/20" />
+            
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <Wallet className="h-4 w-4" />
+                <span className="text-sm opacity-90">Balanço mensal</span>
+              </div>
+              <p className={`text-xl font-bold ${
+                monthlyBalance >= 0 ? 'text-green-300' : 'text-red-300'
+              }`}>
+                {monthlyBalance >= 0 ? '' : '-'}{formatCurrency(Math.abs(monthlyBalance))}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Transactions List */}
-        <div className="space-y-3 pb-32">
-          {filteredTransactions.length > 0 ? (
-            filteredTransactions.map((transaction) => (
-              <MobileTransactionCard
-                key={transaction.id}
-                transaction={transaction}
-                categories={categories}
-                onDelete={handleDelete}
-                formatCurrency={formatCurrency}
-              />
+        {/* Transactions grouped by date */}
+        <div className="p-4 space-y-4 pb-32">
+          {Object.entries(groupedTransactions).length > 0 ? (
+            Object.entries(groupedTransactions).map(([dateKey, transactionsForDate]) => (
+              <div key={dateKey}>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3 capitalize">
+                  {dateKey}
+                </h3>
+                <div className="space-y-1">
+                  {transactionsForDate.map((transaction) => (
+                    <MobileTransactionCard
+                      key={transaction.id}
+                      transaction={transaction}
+                      categories={categories}
+                      onDelete={handleDelete}
+                      onClick={handleTransactionClick}
+                      formatCurrency={formatCurrency}
+                    />
+                  ))}
+                </div>
+              </div>
             ))
           ) : (
-            <div className="bg-card/95 backdrop-blur-sm rounded-2xl border border-border p-8 text-center shadow-sm">
-              <p className="text-muted-foreground mb-4">Nenhuma transação encontrada</p>
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">
+                Nenhuma transação encontrada para {monthNames[currentMonth.getMonth()]}
+              </p>
               <Button 
                 variant="outline" 
                 onClick={() => {
                   setInitialTransactionType('expense');
                   setIsDialogOpen(true);
                 }}
-                className="rounded-xl"
               >
                 Criar primeira transação
               </Button>
             </div>
           )}
+        </div>
+
+        {/* Floating Action Button */}
+        <div className="fixed bottom-20 right-4">
+          <Button
+            size="lg"
+            onClick={() => {
+              setInitialTransactionType('expense');
+              setIsDialogOpen(true);
+            }}
+            className="rounded-full w-14 h-14 shadow-lg"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
         </div>
 
         {/* Mobile Form */}
@@ -221,6 +332,17 @@ export default function Transactions() {
           categories={categories}
           accounts={accounts}
           initialType={initialTransactionType}
+        />
+
+        {/* Transaction Details Modal */}
+        <TransactionDetailsModal
+          transaction={selectedTransaction}
+          isOpen={isDetailsModalOpen}
+          onClose={() => setIsDetailsModalOpen(false)}
+          onEdit={handleEditTransaction}
+          onMarkAsPaid={handleMarkAsPaid}
+          formatCurrency={formatCurrency}
+          categories={categories}
         />
       </div>
     );
