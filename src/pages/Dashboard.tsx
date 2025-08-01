@@ -39,8 +39,10 @@ export default function Dashboard() {
            transactionDate.getFullYear() === selectedYear;
   });
   
-  // Calculate totals
-  const totalBalance = accounts.reduce((sum, account) => sum + (account.balance || 0), 0);
+  // Calculate totals (only accounts shown in dashboard)
+  const totalBalance = accounts
+    .filter(account => account.showInDashboard !== false)
+    .reduce((sum, account) => sum + (account.balance || 0), 0);
   const monthlyIncome = filteredTransactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);

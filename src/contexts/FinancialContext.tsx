@@ -60,8 +60,14 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     setIsLoading(true);
     try {
-      // Generate recurring transactions first
-      await generateRecurringTransactions();
+      // Generate recurring transactions only once per day
+      const lastGenerated = localStorage.getItem('lastRecurringGeneration');
+      const today = new Date().toDateString();
+      
+      if (lastGenerated !== today) {
+        await generateRecurringTransactions();
+        localStorage.setItem('lastRecurringGeneration', today);
+      }
 
       // Load user profile
       const { data: profileData } = await supabase
