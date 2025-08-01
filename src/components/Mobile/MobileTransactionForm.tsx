@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Transaction } from '@/types/financial';
+import { getCurrentDateString } from '@/utils/dateUtils';
 
 interface MobileTransactionFormProps {
   isOpen: boolean;
@@ -31,7 +32,7 @@ export function MobileTransactionForm({
     category: '',
     description: '',
     amount: '',
-    date: new Date().toISOString().split('T')[0],
+    date: getCurrentDateString(),
     paymentMethod: 'cash',
     account: '',
     isRecurring: false,
@@ -64,7 +65,7 @@ export function MobileTransactionForm({
       category: '',
       description: '',
       amount: '',
-      date: new Date().toISOString().split('T')[0],
+      date: getCurrentDateString(),
       paymentMethod: 'cash',
       account: '',
       isRecurring: false,

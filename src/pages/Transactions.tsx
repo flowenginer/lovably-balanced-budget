@@ -17,6 +17,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileTransactionCard } from '@/components/Mobile/MobileTransactionCard';
 import { MobileTransactionForm } from '@/components/Mobile/MobileTransactionForm';
 import { TransactionDetailsModal } from '@/components/Mobile/TransactionDetailsModal';
+import { getCurrentDateString } from '@/utils/dateUtils';
 
 export default function Transactions() {
   const { 
@@ -45,7 +46,7 @@ export default function Transactions() {
     category: '',
     description: '',
     amount: '',
-    date: new Date().toISOString().split('T')[0],
+    date: getCurrentDateString(),
     paymentMethod: 'cash',
     account: '',
     isRecurring: false,
@@ -82,7 +83,7 @@ export default function Transactions() {
       category: '',
       description: '',
       amount: '',
-      date: new Date().toISOString().split('T')[0],
+      date: getCurrentDateString(),
       paymentMethod: 'cash',
       account: '',
       isRecurring: false,
