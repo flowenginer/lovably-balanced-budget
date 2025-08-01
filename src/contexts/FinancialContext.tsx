@@ -65,16 +65,8 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     setIsLoading(true);
     try {
-      // Generate recurring transactions only once per day and only on initial app load
-      const lastGenerated = localStorage.getItem('lastRecurringGeneration');
-      const isInitialLoad = localStorage.getItem('appInitialized') !== 'true';
-      const today = new Date().toDateString();
-      
-      if (isInitialLoad && lastGenerated !== today) {
-        await generateRecurringTransactions();
-        localStorage.setItem('lastRecurringGeneration', today);
-        localStorage.setItem('appInitialized', 'true');
-      }
+      // Generate recurring transactions only on explicit user action, not during navigation
+      // This prevents duplicate generation when switching between pages
 
       // Load user profile
       const { data: profileData } = await supabase
@@ -211,6 +203,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  /* FUNÇÃO TEMPORARIAMENTE DESABILITADA PARA EVITAR DUPLICAÇÕES
   const generateRecurringTransactions = async () => {
     if (!user) return;
 
@@ -305,6 +298,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.error('Error generating recurring transactions:', error);
     }
   };
+  */
 
   const addCategory = async (category: Omit<Category, 'id'>) => {
     if (!user) return;
