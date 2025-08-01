@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useFinancial } from '@/contexts/FinancialContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Account, Bank } from '@/types/financial';
+import { Account, Bank, Transaction } from '@/types/financial';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,13 +11,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Building2, Eye, EyeOff, Search, Trash2 } from 'lucide-react';
+import { Plus, Building2, Eye, EyeOff, Search, Trash2, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Accounts() {
   const { accounts, refreshData } = useFinancial();
   const { user } = useAuth();
   const [banks, setBanks] = useState<Bank[]>([]);
+  const [recurringTransactions, setRecurringTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,9 +58,42 @@ export default function Accounts() {
     }
   };
 
+  // Carregar transações recorrentes
+  const loadRecurringTransactions = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_recurring', true);
+
+      if (error) throw error;
+
+      const mappedTransactions: Transaction[] = (data || []).map(item => ({
+        id: item.id,
+        type: item.type as 'income' | 'expense',
+        category: '', // Não precisamos da categoria para este cálculo
+        description: item.description,
+        amount: item.amount,
+        date: item.date,
+        paymentMethod: item.payment_method,
+        isRecurring: item.is_recurring,
+        observations: item.observations,
+        account: item.account_id
+      }));
+
+      setRecurringTransactions(mappedTransactions);
+    } catch (error) {
+      console.error('Erro ao carregar transações recorrentes:', error);
+    }
+  };
+
   useEffect(() => {
     loadBanks();
-  }, []);
+    loadRecurringTransactions();
+  }, [user]);
 
   // Filtrar bancos por busca
   const filteredBanks = banks.filter(bank => 
@@ -157,9 +191,20 @@ export default function Accounts() {
     account.bankName || (!account.bankName && account.type !== 'cash')
   );
 
-  const totalBalance = bankAccounts
+  // Saldo atual das contas (somente initial_balance)
+  const currentBalance = bankAccounts
     .filter(account => account.showInDashboard ?? true)
-    .reduce((sum, account) => sum + account.balance, 0);
+    .reduce((sum, account) => sum + (account.initialBalance || 0), 0);
+
+  // Calcular estimativa dos próximos 12 meses com transações recorrentes
+  const monthlyRecurringIncome = recurringTransactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const monthlyRecurringExpenses = recurringTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const monthlyNet = monthlyRecurringIncome - monthlyRecurringExpenses;
+  const estimatedBalanceIn12Months = currentBalance + (monthlyNet * 12);
 
   const visibleAccounts = bankAccounts.filter(account => account.showInDashboard ?? true);
 
@@ -331,7 +376,7 @@ export default function Accounts() {
       </div>
 
       {/* Resumo Financeiro */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Saldo Total</CardTitle>
@@ -339,7 +384,7 @@ export default function Accounts() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalBalance.toLocaleString('pt-BR', { 
+              {currentBalance.toLocaleString('pt-BR', { 
                 style: 'currency', 
                 currency: 'BRL' 
               })}
@@ -359,6 +404,26 @@ export default function Accounts() {
             <div className="text-2xl font-bold">{bankAccounts.length}</div>
             <p className="text-xs text-muted-foreground">
               {bankAccounts.length - visibleAccounts.length} ocultas da dashboard
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Estimativa 12 Meses</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${
+              estimatedBalanceIn12Months >= currentBalance ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {estimatedBalanceIn12Months.toLocaleString('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Com transações recorrentes
             </p>
           </CardContent>
         </Card>
