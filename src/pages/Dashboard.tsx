@@ -39,7 +39,7 @@ export default function Dashboard() {
            transactionDate.getFullYear() === selectedYear;
   });
   
-  // Calculate monthly totals first
+  // Calculate monthly totals for selected month
   const monthlyIncome = filteredTransactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
@@ -47,12 +47,26 @@ export default function Dashboard() {
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
   
-  // Calculate monthly balance (accounts initial balance + this month's income - expenses)
+  // Calculate cumulative balance up to selected month
   const accountsInitialBalance = accounts
     .filter(account => account.showInDashboard !== false)
     .reduce((sum, account) => sum + (account.initialBalance || 0), 0);
   
-  const monthlyBalance = accountsInitialBalance + monthlyIncome - monthlyExpenses;
+  // Get all transactions up to the end of selected month
+  const cumulativeTransactions = transactions.filter(t => {
+    const transactionDate = new Date(t.date);
+    const selectedEndOfMonth = new Date(selectedYear, selectedMonth - 1, 31, 23, 59, 59);
+    return transactionDate <= selectedEndOfMonth;
+  });
+  
+  const cumulativeIncome = cumulativeTransactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const cumulativeExpenses = cumulativeTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const cumulativeBalance = accountsInitialBalance + cumulativeIncome - cumulativeExpenses;
 
   // Carregar orçamentos para o mês selecionado
   const loadBudgets = async () => {
@@ -240,9 +254,9 @@ export default function Dashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(monthlyBalance)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(cumulativeBalance)}</div>
             <p className="text-xs text-muted-foreground">
-              {monthlyBalance >= 0 ? 'Saldo positivo do mês' : 'Saldo negativo do mês'}
+              {cumulativeBalance >= 0 ? 'Saldo acumulado positivo' : 'Saldo acumulado negativo'}
             </p>
           </CardContent>
         </Card>
