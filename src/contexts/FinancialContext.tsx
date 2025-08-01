@@ -44,6 +44,8 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Load data when user is authenticated
   useEffect(() => {
     if (user) {
+      // Clear localStorage cache when user changes
+      localStorage.removeItem('lastRecurringGeneration');
       refreshData();
     } else {
       // Clear data when user logs out
