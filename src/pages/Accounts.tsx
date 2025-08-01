@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Building2, Eye, EyeOff, Search, Trash2, TrendingUp } from 'lucide-react';
+import { Plus, Building2, Eye, EyeOff, Search, Trash2, TrendingUp, Calculator } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Accounts() {
@@ -191,38 +191,25 @@ export default function Accounts() {
     account.bankName || (!account.bankName && account.type !== 'cash')
   );
 
-  // Saldo atual das contas visíveis (somente initial_balance)
-  const currentBalance = bankAccounts
-    .filter(account => account.showInDashboard ?? true)
-    .reduce((sum, account) => sum + (account.initialBalance || 0), 0);
-
-  // Conta empresa ativa para cálculo da estimativa (mesmo cálculo da dashboard)
+  // Conta empresa ativa e investimento para saldo total
   const empresaAtivaAccount = bankAccounts.find(account => 
     account.name.toLowerCase().includes('empresa ativa') || 
     account.name.toLowerCase().includes('corrente')
   );
-  const empresaAtivaBalance = empresaAtivaAccount?.initialBalance || 0;
-
-  // Calcular estimativa dos próximos 12 meses apenas para conta empresa ativa
-  const monthlyRecurringIncome = recurringTransactions
-    .filter(t => t.type === 'income' && t.account === empresaAtivaAccount?.id)
-    .reduce((sum, t) => sum + t.amount, 0);
-  const monthlyRecurringExpenses = recurringTransactions
-    .filter(t => t.type === 'expense' && t.account === empresaAtivaAccount?.id)
-    .reduce((sum, t) => sum + t.amount, 0);
-  const monthlyNet = monthlyRecurringIncome - monthlyRecurringExpenses;
-  const estimatedBalanceIn12Months = empresaAtivaBalance + (monthlyNet * 12);
-
-  // Conta de investimento empresa para estimativa CDI
   const investmentAccount = bankAccounts.find(account => 
     account.name.toLowerCase().includes('investimento empresa')
   );
-  const investmentBalance = investmentAccount?.initialBalance || 0;
+  
+  // Saldo total = empresa ativa + investimento empresa
+  const currentBalance = (empresaAtivaAccount?.balance || 0) + (investmentAccount?.balance || 0);
+
+  // Estados para modal de estimativa
+  const [estimateDialogOpen, setEstimateDialogOpen] = useState(false);
+  const [selectedAccountForEstimate, setSelectedAccountForEstimate] = useState<Account | null>(null);
+  const [estimatePeriod, setEstimatePeriod] = useState(12);
   
   // CDI estimado em 10.75% ao ano (100% do CDI)
   const cdiRate = 0.1075;
-  const monthlyInvestmentReturn = (investmentBalance * cdiRate) / 12;
-  const yearlyInvestmentReturn = investmentBalance * cdiRate;
 
   const visibleAccounts = bankAccounts.filter(account => account.showInDashboard ?? true);
 
@@ -426,25 +413,6 @@ export default function Accounts() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Estimativa 12 Meses</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${
-              estimatedBalanceIn12Months >= currentBalance ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {estimatedBalanceIn12Months.toLocaleString('pt-BR', { 
-                style: 'currency', 
-                currency: 'BRL' 
-              })}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Com transações recorrentes
-            </p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Lista de Contas */}
@@ -513,15 +481,6 @@ export default function Accounts() {
                           </Badge>
                         )}
                       </div>
-                      {/* Estimativa de investimento para conta de investimento */}
-                      {account.name.toLowerCase().includes('investimento empresa') && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Estimativa mensal: +{monthlyInvestmentReturn.toLocaleString('pt-BR', { 
-                            style: 'currency', 
-                            currency: 'BRL' 
-                          })} (CDI 100%)
-                        </p>
-                      )}
                     </div>
                   </div>
                   
@@ -533,6 +492,16 @@ export default function Accounts() {
                       })}
                     </div>
                     <div className="flex items-center gap-2 mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedAccountForEstimate(account);
+                          setEstimateDialogOpen(true);
+                        }}
+                      >
+                        <Calculator className="w-4 h-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -555,6 +524,132 @@ export default function Accounts() {
           ))
         )}
       </div>
+
+      {/* Modal de Estimativa */}
+      <Dialog open={estimateDialogOpen} onOpenChange={setEstimateDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Estimativa de Saldo</DialogTitle>
+          </DialogHeader>
+          
+          {selectedAccountForEstimate && (
+            <div className="space-y-4">
+              <div className="text-center">
+                <h3 className="font-semibold">{selectedAccountForEstimate.name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Saldo atual: {selectedAccountForEstimate.balance.toLocaleString('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                  })}
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="estimatePeriod">Período para estimativa</Label>
+                <Select 
+                  value={estimatePeriod.toString()} 
+                  onValueChange={(value) => setEstimatePeriod(parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">3 meses</SelectItem>
+                    <SelectItem value="6">6 meses</SelectItem>
+                    <SelectItem value="12">12 meses</SelectItem>
+                    <SelectItem value="24">24 meses</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="p-4 bg-muted rounded-lg">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Saldo atual:</span>
+                    <span className="text-sm font-medium">
+                      {selectedAccountForEstimate.balance.toLocaleString('pt-BR', { 
+                        style: 'currency', 
+                        currency: 'BRL' 
+                      })}
+                    </span>
+                  </div>
+                  
+                  {selectedAccountForEstimate.name.toLowerCase().includes('investimento empresa') ? (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Rendimento CDI ({estimatePeriod} meses):</span>
+                        <span className="text-sm font-medium text-green-600">
+                          +{((selectedAccountForEstimate.balance * cdiRate * estimatePeriod) / 12).toLocaleString('pt-BR', { 
+                            style: 'currency', 
+                            currency: 'BRL' 
+                          })}
+                        </span>
+                      </div>
+                      <hr />
+                      <div className="flex justify-between font-bold">
+                        <span>Saldo estimado:</span>
+                        <span>
+                          {(selectedAccountForEstimate.balance + ((selectedAccountForEstimate.balance * cdiRate * estimatePeriod) / 12)).toLocaleString('pt-BR', { 
+                            style: 'currency', 
+                            currency: 'BRL' 
+                          })}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {(() => {
+                        const monthlyIncome = recurringTransactions
+                          .filter(t => t.type === 'income' && t.account === selectedAccountForEstimate.id)
+                          .reduce((sum, t) => sum + t.amount, 0);
+                        const monthlyExpenses = recurringTransactions
+                          .filter(t => t.type === 'expense' && t.account === selectedAccountForEstimate.id)
+                          .reduce((sum, t) => sum + t.amount, 0);
+                        const monthlyNet = monthlyIncome - monthlyExpenses;
+                        const totalNet = monthlyNet * estimatePeriod;
+                        const estimatedBalance = selectedAccountForEstimate.balance + totalNet;
+
+                        return (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-sm">Receitas recorrentes ({estimatePeriod} meses):</span>
+                              <span className="text-sm font-medium text-green-600">
+                                +{(monthlyIncome * estimatePeriod).toLocaleString('pt-BR', { 
+                                  style: 'currency', 
+                                  currency: 'BRL' 
+                                })}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm">Despesas recorrentes ({estimatePeriod} meses):</span>
+                              <span className="text-sm font-medium text-red-600">
+                                -{(monthlyExpenses * estimatePeriod).toLocaleString('pt-BR', { 
+                                  style: 'currency', 
+                                  currency: 'BRL' 
+                                })}
+                              </span>
+                            </div>
+                            <hr />
+                            <div className="flex justify-between font-bold">
+                              <span>Saldo estimado:</span>
+                              <span className={estimatedBalance > selectedAccountForEstimate.balance ? 'text-green-600' : 'text-red-600'}>
+                                {estimatedBalance.toLocaleString('pt-BR', { 
+                                  style: 'currency', 
+                                  currency: 'BRL' 
+                                })}
+                              </span>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
