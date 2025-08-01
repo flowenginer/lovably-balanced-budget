@@ -191,20 +191,38 @@ export default function Accounts() {
     account.bankName || (!account.bankName && account.type !== 'cash')
   );
 
-  // Saldo atual das contas (somente initial_balance)
+  // Saldo atual das contas visíveis (somente initial_balance)
   const currentBalance = bankAccounts
     .filter(account => account.showInDashboard ?? true)
     .reduce((sum, account) => sum + (account.initialBalance || 0), 0);
 
-  // Calcular estimativa dos próximos 12 meses com transações recorrentes
+  // Conta empresa ativa para cálculo da estimativa (mesmo cálculo da dashboard)
+  const empresaAtivaAccount = bankAccounts.find(account => 
+    account.name.toLowerCase().includes('empresa ativa') || 
+    account.name.toLowerCase().includes('corrente')
+  );
+  const empresaAtivaBalance = empresaAtivaAccount?.initialBalance || 0;
+
+  // Calcular estimativa dos próximos 12 meses apenas para conta empresa ativa
   const monthlyRecurringIncome = recurringTransactions
-    .filter(t => t.type === 'income')
+    .filter(t => t.type === 'income' && t.account === empresaAtivaAccount?.id)
     .reduce((sum, t) => sum + t.amount, 0);
   const monthlyRecurringExpenses = recurringTransactions
-    .filter(t => t.type === 'expense')
+    .filter(t => t.type === 'expense' && t.account === empresaAtivaAccount?.id)
     .reduce((sum, t) => sum + t.amount, 0);
   const monthlyNet = monthlyRecurringIncome - monthlyRecurringExpenses;
-  const estimatedBalanceIn12Months = currentBalance + (monthlyNet * 12);
+  const estimatedBalanceIn12Months = empresaAtivaBalance + (monthlyNet * 12);
+
+  // Conta de investimento empresa para estimativa CDI
+  const investmentAccount = bankAccounts.find(account => 
+    account.name.toLowerCase().includes('investimento empresa')
+  );
+  const investmentBalance = investmentAccount?.initialBalance || 0;
+  
+  // CDI estimado em 10.75% ao ano (100% do CDI)
+  const cdiRate = 0.1075;
+  const monthlyInvestmentReturn = (investmentBalance * cdiRate) / 12;
+  const yearlyInvestmentReturn = investmentBalance * cdiRate;
 
   const visibleAccounts = bankAccounts.filter(account => account.showInDashboard ?? true);
 
@@ -470,7 +488,7 @@ export default function Accounts() {
                       >
                         {(account.bankName || account.name).charAt(0)}
                       </div>
-                    <div>
+                     <div>
                       <h3 className="font-semibold">{account.name}</h3>
                       <p className="text-sm text-muted-foreground">
                         {account.bankName || 'Conta Manual'}
@@ -495,6 +513,15 @@ export default function Accounts() {
                           </Badge>
                         )}
                       </div>
+                      {/* Estimativa de investimento para conta de investimento */}
+                      {account.name.toLowerCase().includes('investimento empresa') && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Estimativa mensal: +{monthlyInvestmentReturn.toLocaleString('pt-BR', { 
+                            style: 'currency', 
+                            currency: 'BRL' 
+                          })} (CDI 100%)
+                        </p>
+                      )}
                     </div>
                   </div>
                   
