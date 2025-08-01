@@ -23,6 +23,9 @@ export default function Accounts() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
+  const [estimateDialogOpen, setEstimateDialogOpen] = useState(false);
+  const [selectedAccountForEstimate, setSelectedAccountForEstimate] = useState<Account | null>(null);
+  const [estimatePeriod, setEstimatePeriod] = useState(12);
   const [newAccount, setNewAccount] = useState({
     name: '',
     type: 'checking' as Account['type'],
@@ -203,11 +206,6 @@ export default function Accounts() {
   // Saldo total = empresa ativa + investimento empresa
   const currentBalance = (empresaAtivaAccount?.balance || 0) + (investmentAccount?.balance || 0);
 
-  // Estados para modal de estimativa
-  const [estimateDialogOpen, setEstimateDialogOpen] = useState(false);
-  const [selectedAccountForEstimate, setSelectedAccountForEstimate] = useState<Account | null>(null);
-  const [estimatePeriod, setEstimatePeriod] = useState(12);
-  
   // CDI estimado em 10.75% ao ano (100% do CDI)
   const cdiRate = 0.1075;
 
