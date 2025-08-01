@@ -39,16 +39,20 @@ export default function Dashboard() {
            transactionDate.getFullYear() === selectedYear;
   });
   
-  // Calculate totals (only accounts shown in dashboard)
-  const totalBalance = accounts
-    .filter(account => account.showInDashboard !== false)
-    .reduce((sum, account) => sum + (account.balance || 0), 0);
+  // Calculate monthly totals first
   const monthlyIncome = filteredTransactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
   const monthlyExpenses = filteredTransactions
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
+  
+  // Calculate monthly balance (accounts initial balance + this month's income - expenses)
+  const accountsInitialBalance = accounts
+    .filter(account => account.showInDashboard !== false)
+    .reduce((sum, account) => sum + (account.initialBalance || 0), 0);
+  
+  const monthlyBalance = accountsInitialBalance + monthlyIncome - monthlyExpenses;
 
   // Carregar orçamentos para o mês selecionado
   const loadBudgets = async () => {
@@ -236,9 +240,9 @@ export default function Dashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalBalance)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(monthlyBalance)}</div>
             <p className="text-xs text-muted-foreground">
-              {totalBalance >= 0 ? 'Patrimônio positivo' : 'Patrimônio negativo'}
+              {monthlyBalance >= 0 ? 'Saldo positivo do mês' : 'Saldo negativo do mês'}
             </p>
           </CardContent>
         </Card>
