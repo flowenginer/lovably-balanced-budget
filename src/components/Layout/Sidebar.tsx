@@ -22,6 +22,7 @@ import {
   Sparkles,
   Target,
   Building2,
+  CalendarDays,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import logoDark from '@/assets/logo-dark.png';
@@ -37,6 +38,11 @@ const navigationItems = [
     title: 'Transações',
     url: '/transactions',
     icon: Circle,
+  },
+  {
+    title: 'Calendário',
+    url: '/calendar',
+    icon: CalendarDays,
   },
   {
     title: 'Orçamentos',

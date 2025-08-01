@@ -12,6 +12,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
+import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import AIFinance from "./pages/AIFinance";
 import Goals from "./pages/Goals";
@@ -91,6 +92,7 @@ function AppRoutes() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Navigate to="/" replace />} />
         <Route path="/transactions" element={<Transactions />} />
+        <Route path="/calendar" element={<Calendar />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/budgets" element={<Budgets />} />
         <Route path="/accounts" element={<Accounts />} />

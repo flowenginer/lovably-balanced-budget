@@ -7,6 +7,7 @@ import {
   PieChart, 
   TrendingUp,
   Sparkles,
+  CalendarDays,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -21,14 +22,14 @@ const navigationItems = [
     icon: Circle,
   },
   {
+    title: 'Calendário',
+    url: '/calendar',
+    icon: CalendarDays,
+  },
+  {
     title: 'Relatórios',
     url: '/reports',
     icon: PieChart,
-  },
-  {
-    title: 'Metas',
-    url: '/goals',
-    icon: TrendingUp,
   },
   {
     title: 'IA',
