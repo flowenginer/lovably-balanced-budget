@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Building2, Eye, EyeOff, Search, Trash2, TrendingUp, Calculator } from 'lucide-react';
+import { Plus, Building2, Eye, EyeOff, Search, Trash2, TrendingUp, Calculator, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Accounts() {
@@ -26,6 +26,9 @@ export default function Accounts() {
   const [estimateDialogOpen, setEstimateDialogOpen] = useState(false);
   const [selectedAccountForEstimate, setSelectedAccountForEstimate] = useState<Account | null>(null);
   const [estimatePeriod, setEstimatePeriod] = useState(12);
+  const [editBalanceDialogOpen, setEditBalanceDialogOpen] = useState(false);
+  const [selectedAccountForEdit, setSelectedAccountForEdit] = useState<Account | null>(null);
+  const [editBalance, setEditBalance] = useState('');
   const [newAccount, setNewAccount] = useState({
     name: '',
     type: 'checking' as Account['type'],
@@ -494,6 +497,17 @@ export default function Accounts() {
                         variant="outline"
                         size="sm"
                         onClick={() => {
+                          setSelectedAccountForEdit(account);
+                          setEditBalance(account.balance.toString());
+                          setEditBalanceDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
                           setSelectedAccountForEstimate(account);
                           setEstimateDialogOpen(true);
                         }}
@@ -643,6 +657,74 @@ export default function Accounts() {
                     </>
                   )}
                 </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Editar Saldo */}
+      <Dialog open={editBalanceDialogOpen} onOpenChange={setEditBalanceDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Saldo</DialogTitle>
+          </DialogHeader>
+          
+          {selectedAccountForEdit && (
+            <div className="space-y-4">
+              <div className="text-center">
+                <h3 className="font-semibold">{selectedAccountForEdit.name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Saldo atual: {selectedAccountForEdit.balance.toLocaleString('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                  })}
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="editBalance">Novo Saldo (R$)</Label>
+                <Input
+                  id="editBalance"
+                  type="number"
+                  step="0.01"
+                  value={editBalance}
+                  onChange={(e) => setEditBalance(e.target.value)}
+                  placeholder="0,00"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setEditBalanceDialogOpen(false)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={async () => {
+                    const newBalance = parseFloat(editBalance) || 0;
+                    try {
+                      const { error } = await supabase
+                        .from('accounts')
+                        .update({ balance: newBalance })
+                        .eq('id', selectedAccountForEdit.id);
+
+                      if (error) throw error;
+
+                      toast.success('Saldo atualizado com sucesso!');
+                      setEditBalanceDialogOpen(false);
+                      refreshData();
+                    } catch (error) {
+                      console.error('Erro ao atualizar saldo:', error);
+                      toast.error('Erro ao atualizar saldo');
+                    }
+                  }}
+                  className="flex-1"
+                >
+                  Salvar
+                </Button>
               </div>
             </div>
           )}
