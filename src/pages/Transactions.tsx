@@ -157,6 +157,16 @@ export default function Transactions() {
            transactionDate.getFullYear() === currentMonth.getFullYear();
   });
 
+  // Filter transactions based on search and filters
+  const filteredTransactions = currentMonthTransactions.filter(t => {
+    const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         t.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
+    const matchesType = selectedType === 'all' || t.type === selectedType;
+    
+    return matchesSearch && matchesCategory && matchesType;
+  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   // Calculate monthly totals
   const monthlyIncome = currentMonthTransactions
     .filter(t => t.type === 'income')
@@ -170,16 +180,6 @@ export default function Transactions() {
 
   // Calculate total balance from all accounts
   const totalBalance = accounts.reduce((sum, account) => sum + (account.balance || 0), 0);
-
-  // Filter transactions based on search and filters
-  const filteredTransactions = currentMonthTransactions.filter(t => {
-    const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         t.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
-    const matchesType = selectedType === 'all' || t.type === selectedType;
-    
-    return matchesSearch && matchesCategory && matchesType;
-  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   // Group transactions by date for mobile view
   const groupedTransactions = currentMonthTransactions.reduce((groups, transaction) => {
