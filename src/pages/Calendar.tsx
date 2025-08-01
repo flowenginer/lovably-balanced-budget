@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { useFinancial } from '@/contexts/FinancialContext';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -25,7 +25,6 @@ interface CalendarTransaction {
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedDayTransactions, setSelectedDayTransactions] = useState<CalendarTransaction[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { transactions, categories, accounts } = useFinancial();
   const { toast } = useToast();
 
@@ -108,9 +107,6 @@ export default function CalendarPage() {
       setSelectedDate(date);
       const dayTransactions = getTransactionsForDate(date);
       setSelectedDayTransactions(dayTransactions);
-      if (dayTransactions.length > 0) {
-        setIsDialogOpen(true);
-      }
     }
   };
 
@@ -185,9 +181,9 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Calendar */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5" />
@@ -277,57 +273,6 @@ export default function CalendarPage() {
         </Card>
       </div>
 
-      {/* Transaction Details Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              Transações de {selectedDate && format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 max-h-96 overflow-y-auto">
-            {selectedDayTransactions.map((transaction) => (
-              <Card key={transaction.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium">{transaction.description}</h4>
-                        {transaction.isRecurring && (
-                          <Badge variant="outline" className="text-xs">
-                            Recorrente
-                          </Badge>
-                        )}
-                        {transaction.type === 'expense' && transaction.received && (
-                          <Badge variant="secondary" className="text-xs">
-                            Pago
-                          </Badge>
-                        )}
-                        {transaction.type === 'income' && transaction.received && (
-                          <Badge variant="secondary" className="text-xs">
-                            Recebido
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {transaction.category} • {transaction.account}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className={`font-bold ${
-                        transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {transaction.type === 'income' ? '+' : '-'} R$ {transaction.amount.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
