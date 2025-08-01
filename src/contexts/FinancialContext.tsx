@@ -11,6 +11,7 @@ interface FinancialContextType {
   userProfile: { name: string; email: string } | null;
   addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
   markTransactionAsReceived: (id: string) => Promise<void>;
+  markTransactionAsPaid: (id: string) => Promise<void>;
   updateTransaction: (id: string, transaction: Partial<Transaction>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   deleteAllRecurringTransactions: (transactionId: string) => Promise<void>;
@@ -601,6 +602,32 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const markTransactionAsPaid = async (id: string) => {
+    if (!user) return;
+
+    try {
+      // Buscar a transação para saber se é despesa
+      const transaction = transactions.find(t => t.id === id);
+      if (!transaction || transaction.type !== 'expense') {
+        throw new Error('Apenas despesas podem ser marcadas como pagas');
+      }
+
+      // Marcar a transação como paga
+      const { error } = await supabase
+        .from('transactions')
+        .update({ received: true }) // Usando o mesmo campo 'received' para indicar se foi pago/recebido
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      await refreshData();
+    } catch (error) {
+      console.error('Error marking transaction as paid:', error);
+      throw error;
+    }
+  };
+
   const getBalance = () => {
     return transactions.reduce((acc, t) => {
       return t.type === 'income' ? acc + t.amount : acc - t.amount;
@@ -637,6 +664,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       userProfile,
       addTransaction,
       markTransactionAsReceived,
+      markTransactionAsPaid,
       updateTransaction,
       deleteTransaction,
       deleteAllRecurringTransactions,

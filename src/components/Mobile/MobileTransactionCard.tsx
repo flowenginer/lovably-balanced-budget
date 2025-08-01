@@ -8,6 +8,7 @@ interface MobileTransactionCardProps {
   categories: Array<{ id: string; name: string; color: string }>;
   onDelete: (id: string) => void;
   onMarkAsReceived?: (id: string) => void;
+  onMarkAsPaid?: (id: string) => void;
   onClick: (transaction: Transaction) => void;
   formatCurrency: (value: number) => string;
 }
@@ -17,6 +18,7 @@ export function MobileTransactionCard({
   categories, 
   onDelete, 
   onMarkAsReceived,
+  onMarkAsPaid,
   onClick,
   formatCurrency 
 }: MobileTransactionCardProps) {
@@ -66,6 +68,12 @@ export function MobileTransactionCard({
                   Recebido
                 </Badge>
               )}
+              {/* Indicador de despesa paga */}
+              {transaction.type === 'expense' && transaction.received && (
+                <Badge variant="default" className="bg-blue-100 text-blue-800 text-xs">
+                  Pago
+                </Badge>
+              )}
             </div>
           </div>
         </div>
@@ -95,6 +103,22 @@ export function MobileTransactionCard({
               title="Marcar como recebido"
             >
               <Check className="h-4 w-4 text-green-600" />
+            </Button>
+          )}
+          
+          {/* Botão de check apenas para despesas não pagas */}
+          {transaction.type === 'expense' && !transaction.received && onMarkAsPaid && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkAsPaid(transaction.id);
+              }}
+              className="h-8 w-8 p-0 rounded-full hover:bg-blue-100"
+              title="Marcar como pago"
+            >
+              <Check className="h-4 w-4 text-blue-600" />
             </Button>
           )}
           

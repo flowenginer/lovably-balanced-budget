@@ -27,6 +27,7 @@ export default function Transactions() {
     accounts, 
     addTransaction, 
     markTransactionAsReceived,
+    markTransactionAsPaid,
     deleteTransaction,
     deleteAllRecurringTransactions 
   } = useFinancial();
@@ -183,6 +184,22 @@ export default function Transactions() {
     }
   };
 
+  const handleMarkAsPaid = async (id: string) => {
+    try {
+      await markTransactionAsPaid(id);
+      toast({
+        title: "Sucesso",
+        description: "Despesa marcada como paga!",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao marcar despesa como paga",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -195,12 +212,6 @@ export default function Transactions() {
     setIsDetailsModalOpen(true);
   };
 
-  const handleMarkAsPaid = (transaction: Transaction) => {
-    toast({
-      title: "Sucesso",
-      description: `Transação "${transaction.description}" marcada como paga!`,
-    });
-  };
 
   const handleEditTransaction = (transaction: Transaction) => {
     toast({
@@ -340,6 +351,7 @@ export default function Transactions() {
                         categories={categories}
                         onDelete={(transactionId: string) => handleDelete(transactionId)}
                         onMarkAsReceived={(transactionId: string) => handleMarkAsReceived(transactionId)}
+                        onMarkAsPaid={(transactionId: string) => handleMarkAsPaid(transactionId)}
                         onClick={handleTransactionClick}
                         formatCurrency={formatCurrency}
                       />
@@ -383,10 +395,7 @@ export default function Transactions() {
           isOpen={isDetailsModalOpen}
           onClose={() => setIsDetailsModalOpen(false)}
           onEdit={handleEditTransaction}
-          onMarkAsPaid={(transactionId: string) => {
-            const transaction = transactions.find(t => t.id === transactionId);
-            if (transaction) handleMarkAsPaid(transaction);
-          }}
+          onMarkAsPaid={handleMarkAsPaid}
           formatCurrency={formatCurrency}
           categories={categories}
         />
@@ -708,10 +717,30 @@ export default function Transactions() {
                        </Button>
                      )}
                      
+                     {/* Botão de check apenas para despesas não pagas */}
+                     {transaction.type === 'expense' && !transaction.received && (
+                       <Button
+                         variant="ghost"
+                         size="sm"
+                         onClick={() => handleMarkAsPaid(transaction.id)}
+                         className="text-blue-600 hover:text-blue-700"
+                         title="Marcar como pago"
+                       >
+                         <Check className="h-4 w-4" />
+                       </Button>
+                     )}
+                     
                      {/* Indicador de receita recebida */}
                      {transaction.type === 'income' && transaction.received && (
                        <Badge variant="default" className="bg-green-100 text-green-800">
                          Recebido
+                       </Badge>
+                     )}
+                     
+                     {/* Indicador de despesa paga */}
+                     {transaction.type === 'expense' && transaction.received && (
+                       <Badge variant="default" className="bg-blue-100 text-blue-800">
+                         Pago
                        </Badge>
                      )}
                      
