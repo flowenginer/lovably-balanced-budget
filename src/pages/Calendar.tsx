@@ -173,22 +173,13 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Calendar */}
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5" />
               Calendário
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => requestNotificationPermission()}
-                className="ml-auto"
-              >
-                <Bell className="h-4 w-4 mr-2" />
-                Ativar Notificações
-              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -197,7 +188,7 @@ export default function CalendarPage() {
               selected={selectedDate}
               onSelect={handleDateSelect}
               locale={ptBR}
-              className="rounded-md border"
+              className="rounded-md border w-full"
               modifiers={{
                 hasIncome: (date) => {
                   const dayTransactions = getTransactionsForDate(date);
@@ -222,11 +213,36 @@ export default function CalendarPage() {
         </Card>
 
         {/* Summary */}
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>
-              {selectedDate && format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>
+                {selectedDate && format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const permission = await requestNotificationPermission();
+                  if (permission === 'granted') {
+                    toast({
+                      title: "Notificações ativadas!",
+                      description: "Você receberá lembretes sobre suas transações próximas.",
+                    });
+                    scheduleNotifications();
+                  } else {
+                    toast({
+                      title: "Notificações negadas",
+                      description: "Ative as notificações nas configurações do navegador.",
+                      variant: "destructive"
+                    });
+                  }
+                }}
+              >
+                <Bell className="h-4 w-4 mr-2" />
+                Notificar
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {selectedDate && (
