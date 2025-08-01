@@ -13,6 +13,7 @@ interface FinancialContextType {
   markTransactionAsReceived: (id: string) => Promise<void>;
   updateTransaction: (id: string, transaction: Partial<Transaction>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
+  deleteAllRecurringTransactions: (transactionId: string) => Promise<void>;
   addCategory: (category: Omit<Category, 'id'>) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
   addAccount: (account: Omit<Account, 'id'>) => Promise<void>;
@@ -535,6 +536,44 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const deleteAllRecurringTransactions = async (transactionId: string) => {
+    if (!user) return;
+
+    try {
+      // First, get the transaction details to identify similar recurring transactions
+      const { data: transaction, error: fetchError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('id', transactionId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      if (!transaction.is_recurring) {
+        throw new Error('Esta transação não é recorrente');
+      }
+
+      // Delete all recurring transactions with the same description, amount, category, and account
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('category_id', transaction.category_id)
+        .eq('account_id', transaction.account_id)
+        .eq('description', transaction.description)
+        .eq('amount', transaction.amount)
+        .eq('is_recurring', true);
+
+      if (error) throw error;
+      
+      await refreshData();
+    } catch (error) {
+      console.error('Error deleting all recurring transactions:', error);
+      throw error;
+    }
+  };
+
   const markTransactionAsReceived = async (id: string) => {
     if (!user) return;
 
@@ -600,6 +639,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       markTransactionAsReceived,
       updateTransaction,
       deleteTransaction,
+      deleteAllRecurringTransactions,
       addCategory,
       deleteCategory,
       addAccount,

@@ -18,6 +18,7 @@ import { MobileTransactionCard } from '@/components/Mobile/MobileTransactionCard
 import { MobileTransactionForm } from '@/components/Mobile/MobileTransactionForm';
 import { TransactionDetailsModal } from '@/components/Mobile/TransactionDetailsModal';
 import { getCurrentDateString } from '@/utils/dateUtils';
+import { DeleteRecurringDialog } from '@/components/DeleteRecurringDialog';
 
 export default function Transactions() {
   const { 
@@ -26,7 +27,8 @@ export default function Transactions() {
     accounts, 
     addTransaction, 
     markTransactionAsReceived,
-    deleteTransaction 
+    deleteTransaction,
+    deleteAllRecurringTransactions 
   } = useFinancial();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -39,6 +41,8 @@ export default function Transactions() {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -109,6 +113,17 @@ export default function Transactions() {
   };
 
   const handleDelete = async (id: string) => {
+    const transaction = transactions.find(t => t.id === id);
+    
+    if (transaction?.isRecurring) {
+      setTransactionToDelete(transaction);
+      setDeleteDialogOpen(true);
+    } else {
+      await performDelete(id);
+    }
+  };
+
+  const performDelete = async (id: string) => {
     try {
       await deleteTransaction(id);
       toast({
@@ -121,6 +136,34 @@ export default function Transactions() {
         description: "Erro ao remover transação",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleDeleteSingle = async () => {
+    if (transactionToDelete) {
+      await performDelete(transactionToDelete.id);
+      setDeleteDialogOpen(false);
+      setTransactionToDelete(null);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (transactionToDelete) {
+      try {
+        await deleteAllRecurringTransactions(transactionToDelete.id);
+        toast({
+          title: "Sucesso",
+          description: "Todas as transações recorrentes foram removidas!",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Erro ao remover transações recorrentes",
+          variant: "destructive",
+        });
+      }
+      setDeleteDialogOpen(false);
+      setTransactionToDelete(null);
     }
   };
 
@@ -346,6 +389,15 @@ export default function Transactions() {
           }}
           formatCurrency={formatCurrency}
           categories={categories}
+        />
+
+        {/* Delete Recurring Dialog */}
+        <DeleteRecurringDialog
+          isOpen={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          onDeleteSingle={handleDeleteSingle}
+          onDeleteAll={handleDeleteAll}
+          transactionDescription={transactionToDelete?.description || ''}
         />
       </div>
     );
@@ -678,6 +730,15 @@ export default function Transactions() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Recurring Dialog */}
+      <DeleteRecurringDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onDeleteSingle={handleDeleteSingle}
+        onDeleteAll={handleDeleteAll}
+        transactionDescription={transactionToDelete?.description || ''}
+      />
     </div>
   );
 }
