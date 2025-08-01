@@ -1,12 +1,13 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Trash2, Receipt, CreditCard, Banknote, Home, Car, ShoppingBag, Gamepad2, Heart, GraduationCap, Utensils } from 'lucide-react';
+import { Trash2, Receipt, CreditCard, Banknote, Home, Car, ShoppingBag, Gamepad2, Heart, GraduationCap, Utensils, Check } from 'lucide-react';
 import { Transaction } from '@/types/financial';
 
 interface MobileTransactionCardProps {
   transaction: Transaction;
   categories: Array<{ id: string; name: string; color: string }>;
   onDelete: (id: string) => void;
+  onMarkAsReceived?: (id: string) => void;
   onClick: (transaction: Transaction) => void;
   formatCurrency: (value: number) => string;
 }
@@ -15,6 +16,7 @@ export function MobileTransactionCard({
   transaction, 
   categories, 
   onDelete, 
+  onMarkAsReceived,
   onClick,
   formatCurrency 
 }: MobileTransactionCardProps) {
@@ -54,13 +56,21 @@ export function MobileTransactionCard({
             <h3 className="font-semibold text-foreground text-sm truncate leading-tight mb-1">
               {transaction.description}
             </h3>
-            <p className="text-xs text-muted-foreground truncate">
-              {transaction.category} | {transaction.account}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-muted-foreground truncate">
+                {transaction.category} | {transaction.account}
+              </p>
+              {/* Indicador de receita recebida */}
+              {transaction.type === 'income' && transaction.received && (
+                <Badge variant="default" className="bg-green-100 text-green-800 text-xs">
+                  Recebido
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
         
-        {/* Right side - Amount and delete button */}
+        {/* Right side - Amount and buttons */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <div className="text-right">
             <span className={`font-bold text-base ${
@@ -71,6 +81,22 @@ export function MobileTransactionCard({
               {formatCurrency(transaction.amount)}
             </span>
           </div>
+          
+          {/* Botão de check apenas para receitas não recebidas */}
+          {transaction.type === 'income' && !transaction.received && onMarkAsReceived && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkAsReceived(transaction.id);
+              }}
+              className="h-8 w-8 p-0 rounded-full hover:bg-green-100"
+              title="Marcar como recebido"
+            >
+              <Check className="h-4 w-4 text-green-600" />
+            </Button>
+          )}
           
           <Button
             variant="ghost"

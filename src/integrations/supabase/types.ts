@@ -228,6 +228,7 @@ export type Database = {
           payment_method: string
           pix_key: string | null
           pix_key_type: string | null
+          received: boolean | null
           type: string
           updated_at: string | null
           user_id: string
@@ -250,6 +251,7 @@ export type Database = {
           payment_method: string
           pix_key?: string | null
           pix_key_type?: string | null
+          received?: boolean | null
           type: string
           updated_at?: string | null
           user_id: string
@@ -272,6 +274,7 @@ export type Database = {
           payment_method?: string
           pix_key?: string | null
           pix_key_type?: string | null
+          received?: boolean | null
           type?: string
           updated_at?: string | null
           user_id?: string

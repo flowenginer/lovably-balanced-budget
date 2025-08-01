@@ -10,6 +10,7 @@ interface FinancialContextType {
   goals: FinancialGoal[];
   userProfile: { name: string; email: string } | null;
   addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
+  markTransactionAsReceived: (id: string) => Promise<void>;
   updateTransaction: (id: string, transaction: Partial<Transaction>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   addCategory: (category: Omit<Category, 'id'>) => Promise<void>;
@@ -142,6 +143,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           observations: t.observations || '',
           account: t.accounts?.name || '',
           attachment: t.attachment_url || '',
+          received: t.received || false,
           pixData: t.pix_key ? {
             key: t.pix_key,
             keyType: t.pix_key_type as any
@@ -159,6 +161,17 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setTimeout(() => {
           setAccounts(prevAccounts => {
             return prevAccounts.map(account => {
+              // Para a conta "Empresa Ativa", somar apenas receitas marcadas como recebidas
+              if (account.name === 'Empresa Ativa') {
+                const receivedIncomeTransactions = formattedTransactions.filter(t => 
+                  t.account === account.name && t.type === 'income' && t.received
+                );
+                const receivedIncomeTotal = receivedIncomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+                
+                return { ...account, balance: account.initialBalance + receivedIncomeTotal };
+              }
+              
+              // Para outras contas, manter o cálculo normal
               const accountTransactions = formattedTransactions.filter(t => t.account === account.name);
               const calculatedBalance = accountTransactions.reduce((sum, t) => {
                 return t.type === 'income' ? sum + t.amount : sum - t.amount;
@@ -517,6 +530,33 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const markTransactionAsReceived = async (id: string) => {
+    if (!user) return;
+
+    try {
+      // Buscar a transação para saber se é receita e da conta "Empresa Ativa"
+      const transaction = transactions.find(t => t.id === id);
+      if (!transaction || transaction.type !== 'income') {
+        throw new Error('Apenas receitas podem ser marcadas como recebidas');
+      }
+
+      // Marcar a transação como recebida
+      const { error } = await supabase
+        .from('transactions')
+        .update({ received: true })
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      // Se a transação foi recebida e é da conta "Empresa Ativa", o saldo será recalculado no refreshData()
+      await refreshData();
+    } catch (error) {
+      console.error('Error marking transaction as received:', error);
+      throw error;
+    }
+  };
+
   const getBalance = () => {
     return transactions.reduce((acc, t) => {
       return t.type === 'income' ? acc + t.amount : acc - t.amount;
@@ -552,6 +592,7 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       goals,
       userProfile,
       addTransaction,
+      markTransactionAsReceived,
       updateTransaction,
       deleteTransaction,
       addCategory,

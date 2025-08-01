@@ -11,6 +11,7 @@ export interface Transaction {
   observations?: string;
   account: string;
   attachment?: string;
+  received?: boolean;
   pixData?: PixData;
   bankData?: BankData;
 }

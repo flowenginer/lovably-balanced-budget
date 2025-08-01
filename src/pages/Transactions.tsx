@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Calendar, Filter, Search, Trash2, Edit, ChevronLeft, ChevronRight, Lock, Wallet } from 'lucide-react';
+import { Plus, Calendar, Filter, Search, Trash2, Edit, ChevronLeft, ChevronRight, Lock, Wallet, Check } from 'lucide-react';
 import { Transaction } from '@/types/financial';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -24,6 +24,7 @@ export default function Transactions() {
     categories, 
     accounts, 
     addTransaction, 
+    markTransactionAsReceived,
     deleteTransaction 
   } = useFinancial();
   const { toast } = useToast();
@@ -117,6 +118,22 @@ export default function Transactions() {
       toast({
         title: "Erro",
         description: "Erro ao remover transação",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleMarkAsReceived = async (id: string) => {
+    try {
+      await markTransactionAsReceived(id);
+      toast({
+        title: "Sucesso",
+        description: "Receita marcada como recebida!",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao marcar receita como recebida",
         variant: "destructive",
       });
     }
@@ -278,6 +295,7 @@ export default function Transactions() {
                         transaction={transaction}
                         categories={categories}
                         onDelete={(transactionId: string) => handleDelete(transactionId)}
+                        onMarkAsReceived={(transactionId: string) => handleMarkAsReceived(transactionId)}
                         onClick={handleTransactionClick}
                         formatCurrency={formatCurrency}
                       />
@@ -614,25 +632,45 @@ export default function Transactions() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    <span
-                      className={`font-semibold ${
-                        transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                      }`}
-                    >
-                      {transaction.type === 'income' ? '+' : '-'}
-                      {formatCurrency(transaction.amount)}
-                    </span>
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(transaction.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                   <div className="flex items-center gap-4">
+                     <span
+                       className={`font-semibold ${
+                         transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                       }`}
+                     >
+                       {transaction.type === 'income' ? '+' : '-'}
+                       {formatCurrency(transaction.amount)}
+                     </span>
+                     
+                     {/* Botão de check apenas para receitas não recebidas */}
+                     {transaction.type === 'income' && !transaction.received && (
+                       <Button
+                         variant="ghost"
+                         size="sm"
+                         onClick={() => handleMarkAsReceived(transaction.id)}
+                         className="text-green-600 hover:text-green-700"
+                         title="Marcar como recebido"
+                       >
+                         <Check className="h-4 w-4" />
+                       </Button>
+                     )}
+                     
+                     {/* Indicador de receita recebida */}
+                     {transaction.type === 'income' && transaction.received && (
+                       <Badge variant="default" className="bg-green-100 text-green-800">
+                         Recebido
+                       </Badge>
+                     )}
+                     
+                     <Button
+                       variant="ghost"
+                       size="sm"
+                       onClick={() => handleDelete(transaction.id)}
+                       className="text-red-600 hover:text-red-700"
+                     >
+                       <Trash2 className="h-4 w-4" />
+                     </Button>
+                   </div>
                 </div>
               ))}
             </div>
