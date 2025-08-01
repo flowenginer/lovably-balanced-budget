@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
 import { useFinancial } from '@/contexts/FinancialContext';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -92,13 +91,6 @@ export default function CalendarPage() {
           isRecurring: transaction.isRecurring
         };
       });
-  };
-
-  // Check if a date has transactions
-  const hasTransactions = (date: Date): boolean => {
-    return transactions.some(transaction => 
-      isSameDay(parseISO(transaction.date), date)
-    );
   };
 
   // Handle date selection
@@ -267,12 +259,47 @@ export default function CalendarPage() {
                     </span>
                   </div>
                 </div>
+
+                {/* Transaction Details */}
+                {selectedDayTransactions.length > 0 && (
+                  <div className="space-y-3 pt-4 border-t">
+                    <h4 className="font-medium text-sm">Transações do Dia</h4>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {selectedDayTransactions.map((transaction) => (
+                        <div key={transaction.id} className="p-3 bg-muted/50 rounded-lg">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm">{transaction.description}</span>
+                              {transaction.isRecurring && (
+                                <Badge variant="outline" className="text-xs">
+                                  Recorrente
+                                </Badge>
+                              )}
+                            </div>
+                            <span className={`font-bold text-sm ${
+                              transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                              {transaction.type === 'income' ? '+' : '-'} R$ {transaction.amount.toFixed(2)}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {transaction.category} • {transaction.account}
+                          </p>
+                          {transaction.received && (
+                            <Badge variant="secondary" className="text-xs mt-1">
+                              {transaction.type === 'income' ? 'Recebido' : 'Pago'}
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </CardContent>
         </Card>
       </div>
-
     </div>
   );
 }
