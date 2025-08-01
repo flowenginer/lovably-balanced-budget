@@ -352,7 +352,12 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           user_id: user.id,
           name: account.name,
           type: account.type,
-          balance: account.balance
+          balance: account.balance,
+          initial_balance: account.initialBalance || account.balance,
+          bank_name: account.bankName,
+          bank_icon: account.bankIcon,
+          is_bank_account: account.isBankAccount || false,
+          show_in_dashboard: account.showInDashboard ?? true
         });
 
       if (error) throw error;
