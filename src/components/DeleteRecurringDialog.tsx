@@ -32,13 +32,13 @@ export const DeleteRecurringDialog = ({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onDeleteSingle}
-            className="bg-secondary hover:bg-secondary/80"
+            className="bg-secondary text-secondary-foreground hover:bg-secondary/80"
           >
             Apenas esta
           </AlertDialogAction>
           <AlertDialogAction
             onClick={onDeleteAll}
-            className="bg-destructive hover:bg-destructive/80"
+            className="bg-red-600 text-white hover:bg-red-700 font-medium"
           >
             Todas as recorrentes
           </AlertDialogAction>
