@@ -51,15 +51,6 @@ export default function Transactions() {
     observations: '',
   });
 
-  const filteredTransactions = transactions.filter(t => {
-    const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         t.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
-    const matchesType = selectedType === 'all' || t.type === selectedType;
-    
-    return matchesSearch && matchesCategory && matchesType;
-  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
   const entityCategories = categories;
   const entityAccounts = accounts;
 
@@ -179,6 +170,16 @@ export default function Transactions() {
 
   // Calculate total balance from all accounts
   const totalBalance = accounts.reduce((sum, account) => sum + (account.balance || 0), 0);
+
+  // Filter transactions based on search and filters
+  const filteredTransactions = currentMonthTransactions.filter(t => {
+    const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         t.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
+    const matchesType = selectedType === 'all' || t.type === selectedType;
+    
+    return matchesSearch && matchesCategory && matchesType;
+  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   // Group transactions by date for mobile view
   const groupedTransactions = currentMonthTransactions.reduce((groups, transaction) => {
@@ -479,6 +480,64 @@ export default function Transactions() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Month/Year Filter */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const prevMonth = new Date(currentMonth);
+                prevMonth.setMonth(prevMonth.getMonth() - 1);
+                setCurrentMonth(prevMonth);
+              }}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            
+            <div className="text-center">
+              <h3 className="font-semibold text-lg">
+                {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {currentMonthTransactions.length} transações
+              </p>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const nextMonth = new Date(currentMonth);
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                setCurrentMonth(nextMonth);
+              }}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="text-right">
+            <div className="text-sm text-muted-foreground">Saldo do mês</div>
+            <div className={`font-semibold ${monthlyBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {formatCurrency(monthlyBalance)}
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="text-center">
+            <div className="text-sm text-muted-foreground">Receitas</div>
+            <div className="text-green-600 font-semibold">{formatCurrency(monthlyIncome)}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-sm text-muted-foreground">Despesas</div>
+            <div className="text-red-600 font-semibold">{formatCurrency(monthlyExpenses)}</div>
+          </div>
+        </div>
+      </Card>
 
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
