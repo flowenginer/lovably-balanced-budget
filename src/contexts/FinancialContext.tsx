@@ -167,10 +167,17 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 return { ...account, balance: account.initialBalance + receivedIncomeTotal };
               }
               
-              // Para outras contas, manter o cálculo normal
+              // Para outras contas, calcular considerando apenas transações efetivadas
               const accountTransactions = formattedTransactions.filter(t => t.account === account.name);
               const calculatedBalance = accountTransactions.reduce((sum, t) => {
-                return t.type === 'income' ? sum + t.amount : sum - t.amount;
+                // Para receitas: somar apenas se foi recebida
+                if (t.type === 'income') {
+                  return t.received ? sum + t.amount : sum;
+                }
+                // Para despesas: subtrair apenas se foi paga
+                else {
+                  return t.received ? sum - t.amount : sum;
+                }
               }, account.initialBalance);
               
               return { ...account, balance: calculatedBalance };
