@@ -706,9 +706,13 @@ export default function Accounts() {
                   onClick={async () => {
                     const newBalance = parseFloat(editBalance) || 0;
                     try {
+                      // Atualizar tanto o balance quanto o initial_balance para preservar a edição manual
                       const { error } = await supabase
                         .from('accounts')
-                        .update({ balance: newBalance })
+                        .update({ 
+                          balance: newBalance,
+                          initial_balance: newBalance 
+                        })
                         .eq('id', selectedAccountForEdit.id);
 
                       if (error) throw error;
