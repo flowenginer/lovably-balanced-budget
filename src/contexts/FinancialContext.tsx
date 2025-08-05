@@ -169,7 +169,13 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                   else {
                     return t.received ? sum - t.amount : sum;
                   }
-                }, account.initialBalance);
+                }, account.initialBalance || 0);
+                
+                // Se o balance atual é diferente do initialBalance, 
+                // significa que foi editado manualmente - não recalcular
+                if (account.balance !== account.initialBalance) {
+                  return account;
+                }
                 
                 return { ...account, balance: calculatedBalance };
               }
@@ -185,7 +191,13 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 else {
                   return t.received ? sum - t.amount : sum;
                 }
-              }, account.initialBalance);
+              }, account.initialBalance || 0);
+              
+              // Se o balance atual é diferente do initialBalance, 
+              // significa que foi editado manualmente - não recalcular
+              if (account.balance !== account.initialBalance) {
+                return account;
+              }
               
               return { ...account, balance: calculatedBalance };
             });
