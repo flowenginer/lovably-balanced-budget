@@ -157,14 +157,21 @@ export const FinancialProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setTimeout(() => {
           setAccounts(prevAccounts => {
             return prevAccounts.map(account => {
-              // Para a conta "Empresa Ativa", somar apenas receitas marcadas como recebidas
+              // Para a conta "Empresa Ativa", calcular considerando receitas recebidas e despesas pagas
               if (account.name === 'Empresa Ativa') {
-                const receivedIncomeTransactions = formattedTransactions.filter(t => 
-                  t.account === account.name && t.type === 'income' && t.received
-                );
-                const receivedIncomeTotal = receivedIncomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+                const accountTransactions = formattedTransactions.filter(t => t.account === account.name);
+                const calculatedBalance = accountTransactions.reduce((sum, t) => {
+                  // Para receitas: somar apenas se foi recebida
+                  if (t.type === 'income') {
+                    return t.received ? sum + t.amount : sum;
+                  }
+                  // Para despesas: subtrair apenas se foi paga
+                  else {
+                    return t.received ? sum - t.amount : sum;
+                  }
+                }, account.initialBalance);
                 
-                return { ...account, balance: account.initialBalance + receivedIncomeTotal };
+                return { ...account, balance: calculatedBalance };
               }
               
               // Para outras contas, calcular considerando apenas transações efetivadas
