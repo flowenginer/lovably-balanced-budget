@@ -96,3 +96,18 @@ export interface Budget {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ShoppingItem {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  price: number;
+  priority: 1 | 2 | 3 | 4 | 5;
+  purchaseLink?: string;
+  targetDate?: string;
+  isPurchased: boolean;
+  purchasedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
