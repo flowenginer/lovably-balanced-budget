@@ -45,12 +45,12 @@ const navigationItems = [
     icon: CalendarDays,
   },
   {
-    title: 'Orçamentos',
-    url: '/budgets',
+    title: 'Lista de Compras',
+    url: '/shopping-list',
     icon: Target,
   },
   {
-    title: 'Contas',
+    title: 'Bancos',
     url: '/accounts',
     icon: Building2,
   },

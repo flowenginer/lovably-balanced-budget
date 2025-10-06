@@ -218,9 +218,9 @@ export default function Accounts() {
     <div className="px-4 pb-32 space-y-4">{/* Regra Global: px-4 pb-32 aplicada */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold">Contas Bancárias</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Bancos</h1>
           <p className="text-sm md:text-base text-muted-foreground">
-            Gerencie suas contas e configure quais aparecem na dashboard
+            Gerencie suas contas bancárias e saldos
           </p>
         </div>
         

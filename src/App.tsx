@@ -20,6 +20,7 @@ import Settings from "./pages/Settings";
 import Categories from "./pages/Categories";
 import Budgets from "./pages/Budgets";
 import Accounts from "./pages/Accounts";
+import ShoppingList from "./pages/ShoppingList";
 import InstallApp from "./pages/InstallApp";
 import NotFound from "./pages/NotFound";
 
@@ -95,6 +96,7 @@ function AppRoutes() {
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/budgets" element={<Budgets />} />
+        <Route path="/shopping-list" element={<ShoppingList />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/ai" element={<AIFinance />} />
